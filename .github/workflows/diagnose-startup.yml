@@ -35,9 +35,9 @@ jobs:
           Write-Host "Sprite size: $($bytes.Length) bytes"
           Write-Host "Sprite magic: $([BitConverter]::ToString($head))"
 
-      - name: Run sprite decode test
+      - name: Inspect sprite chunks and decode
         shell: pwsh
-        run: go test ./... -run TestEmbeddedSpriteSheetDecodes -v
+        run: go test ./... -run 'Test(InspectSpriteChunks|EmbeddedSpriteSheetDecodes)' -v
 
       - name: Build console diagnostic EXE
         shell: pwsh
