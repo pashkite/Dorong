@@ -3,12 +3,10 @@ name: Build Dorong
 on:
   push:
     branches: [main]
-    paths-ignore:
-      - 'dist/**'
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build-windows:
@@ -43,9 +41,24 @@ jobs:
           $version = (Get-Content VERSION -Raw).Trim()
           go build -trimpath -ldflags="-H=windowsgui -s -w" -o "Dorong-v$version.exe" .
 
-      - name: Upload Windows build
+      - name: Upload Windows build artifact
         uses: actions/upload-artifact@v4
         with:
           name: Dorong-windows-amd64
           path: Dorong-v*.exe
           if-no-files-found: error
+
+      - name: Publish versioned GitHub release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $version = (Get-Content VERSION -Raw).Trim()
+          $tag = "v$version"
+          $exe = "Dorong-v$version.exe"
+          gh release view $tag --repo "${{ github.repository }}" *> $null
+          if ($LASTEXITCODE -eq 0) {
+            gh release upload $tag $exe --clobber --repo "${{ github.repository }}"
+          } else {
+            gh release create $tag $exe --repo "${{ github.repository }}" --target "${{ github.sha }}" --title "Dorong $tag" --notes "Windows 64-bit standalone build of Dorong $tag. No Python, Go, or .NET runtime is required to run the prebuilt EXE."
+          }

@@ -13,7 +13,7 @@
 
 ### 다운로드
 
-[⬇ **Dorong v0.5.6 EXE 다운로드**](./dist/Dorong-v0.5.6.exe?raw=1)
+[⬇ **Dorong v0.5.6 EXE 다운로드**](https://github.com/pashkite/Dorong/releases/download/v0.5.6/Dorong-v0.5.6.exe)
 
 Windows 64비트용 단일 실행 파일입니다. 미리 빌드된 EXE를 실행할 때 Python, Go, .NET 설치가 필요하지 않습니다.
 
@@ -58,7 +58,7 @@ Windows 64비트용 단일 실행 파일입니다. 미리 빌드된 EXE를 실�
 
 ### Download
 
-[⬇ **Download Dorong v0.5.6 EXE**](./dist/Dorong-v0.5.6.exe?raw=1)
+[⬇ **Download Dorong v0.5.6 EXE**](https://github.com/pashkite/Dorong/releases/download/v0.5.6/Dorong-v0.5.6.exe)
 
 The download is a standalone 64-bit Windows executable. Python, Go, and .NET are not required to run the prebuilt EXE.
 
@@ -103,7 +103,7 @@ The download is a standalone 64-bit Windows executable. Python, Go, and .NET are
 
 ### ダウンロード
 
-[⬇ **Dorong v0.5.6 EXE をダウンロード**](./dist/Dorong-v0.5.6.exe?raw=1)
+[⬇ **Dorong v0.5.6 EXE をダウンロード**](https://github.com/pashkite/Dorong/releases/download/v0.5.6/Dorong-v0.5.6.exe)
 
 64 ビット Windows 用の単体実行ファイルです。ビルド済み EXE の実行に Python、Go、.NET は必要ありません。
 
@@ -148,7 +148,7 @@ The download is a standalone 64-bit Windows executable. Python, Go, and .NET are
 
 ### 下载
 
-[⬇ **下载 Dorong v0.5.6 EXE**](./dist/Dorong-v0.5.6.exe?raw=1)
+[⬇ **下载 Dorong v0.5.6 EXE**](https://github.com/pashkite/Dorong/releases/download/v0.5.6/Dorong-v0.5.6.exe)
 
 这是一个适用于 64 位 Windows 的独立可执行文件。运行预编译 EXE 不需要安装 Python、Go 或 .NET。
 
@@ -206,7 +206,6 @@ Dorong/
 ├─ *_test.go
 ├─ sprite_data_*_windows.go
 ├─ VERSION
-├─ dist/
 ├─ assets/
 ├─ .github/workflows/build.yml
 └─ docs/ROADMAP.md
