@@ -66,3 +66,58 @@ func TestResolveFloorLandingSnapsExactlyToFloor(t *testing.T) {
 		t.Fatalf("landing = y:%d landed:%v, want y:%d landed:true", y, landed, floorY)
 	}
 }
+
+func TestResolveWorkAreaLandingBottomTaskbar(t *testing.T) {
+	area := ScreenRect{Left: 0, Top: 0, Right: 1920, Bottom: 1040} // 40 px bottom taskbar on 1080p
+	x, y, landed := resolveWorkAreaLanding(1700, 900, 236, 236, area)
+	if !landed {
+		t.Fatal("expected landing on work-area floor")
+	}
+	if y != 804 { // 1040 - 236
+		t.Fatalf("y = %d, want 804", y)
+	}
+	if x != 1684 { // 1920 - 236
+		t.Fatalf("x = %d, want 1684", x)
+	}
+}
+
+func TestResolveWorkAreaLandingLeftTaskbarClampsX(t *testing.T) {
+	area := ScreenRect{Left: 64, Top: 0, Right: 1920, Bottom: 1080}
+	x, y, landed := resolveWorkAreaLanding(0, 900, 236, 236, area)
+	if !landed {
+		t.Fatal("expected landing")
+	}
+	if x != 64 {
+		t.Fatalf("x = %d, want 64 so Dorong does not overlap left taskbar", x)
+	}
+	if y != 844 {
+		t.Fatalf("y = %d, want 844", y)
+	}
+}
+
+func TestResolveWorkAreaLandingRightTaskbarClampsX(t *testing.T) {
+	area := ScreenRect{Left: 0, Top: 0, Right: 1856, Bottom: 1080}
+	x, _, _ := resolveWorkAreaLanding(1800, 900, 236, 236, area)
+	if x != 1620 { // 1856 - 236
+		t.Fatalf("x = %d, want 1620 so Dorong does not overlap right taskbar", x)
+	}
+}
+
+func TestResolveWorkAreaLandingTopTaskbarStillUsesUsableFloor(t *testing.T) {
+	area := ScreenRect{Left: 0, Top: 48, Right: 1920, Bottom: 1080}
+	_, y, landed := resolveWorkAreaLanding(500, 1000, 236, 236, area)
+	if !landed || y != 844 {
+		t.Fatalf("landing = y:%d landed:%v, want y:844 landed:true", y, landed)
+	}
+}
+
+func TestResolveWorkAreaLandingDoesNotLandEarly(t *testing.T) {
+	area := ScreenRect{Left: 0, Top: 0, Right: 1920, Bottom: 1040}
+	x, y, landed := resolveWorkAreaLanding(400, 700, 236, 236, area)
+	if landed {
+		t.Fatal("landed too early")
+	}
+	if x != 400 || y != 700 {
+		t.Fatalf("position changed before landing: got %d,%d", x, y)
+	}
+}
