@@ -33,7 +33,7 @@ It runs as a standalone Windows executable and does not require Python, .NET, or
 
 ## Run
 
-Download the Windows build artifact from GitHub Actions, or build it yourself.
+Download the Windows build artifact from GitHub Actions, or use the packaged build supplied with a tagged/local release bundle.
 
 No Python, Go, or .NET installation is required **to run the prebuilt executable**.
 
@@ -55,11 +55,16 @@ GOOS=windows GOARCH=amd64 go build -ldflags='-H=windowsgui -s -w' -o Dorong.exe 
 
 ```text
 Dorong/
-├─ core_windows.go
 ├─ app_windows.go
+├─ core_windows.go
+├─ sprite_data_windows.go
+├─ sprite_data_0_windows.go … sprite_data_7_windows.go
 ├─ go.mod
 ├─ assets/
-│  ├─ spritesheet.gif      # all embedded animation frames
+│  ├─ spritesheet*.gif     # source/derived animation sheets
+│  ├─ preview.gif
+│  ├─ animation_preview.gif
+│  ├─ contact_sheet.png / .jpg
 │  └─ icon.png
 ├─ .github/workflows/
 │  └─ build.yml
