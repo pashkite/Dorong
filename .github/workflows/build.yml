@@ -3,6 +3,8 @@ name: Build Dorong
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - 'dist/**'
   workflow_dispatch:
 
 permissions:
@@ -20,17 +22,30 @@ jobs:
         with:
           go-version: '1.23.x'
 
+      - name: Apply VERSION to Windows source
+        shell: pwsh
+        run: |
+          $version = (Get-Content VERSION -Raw).Trim()
+          $source = Get-Content core_windows.go -Raw
+          $patched = [regex]::Replace($source, 'AppVersion\s*=\s*"[^"]+"', "AppVersion = `"$version`"")
+          if ($patched -eq $source) {
+            throw 'AppVersion marker was not found in core_windows.go'
+          }
+          Set-Content core_windows.go -Value $patched -NoNewline -Encoding utf8
+
       - name: Test core logic, localization, movement, and hanging
         shell: pwsh
         run: go test ./...
 
-      - name: Build Dorong.exe
+      - name: Build versioned Dorong EXE
         shell: pwsh
-        run: go build -trimpath -ldflags="-H=windowsgui -s -w" -o Dorong.exe .
+        run: |
+          $version = (Get-Content VERSION -Raw).Trim()
+          go build -trimpath -ldflags="-H=windowsgui -s -w" -o "Dorong-v$version.exe" .
 
       - name: Upload Windows build
         uses: actions/upload-artifact@v4
         with:
           name: Dorong-windows-amd64
-          path: Dorong.exe
+          path: Dorong-v*.exe
           if-no-files-found: error
