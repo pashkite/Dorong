@@ -3,7 +3,8 @@
 package main
 
 import (
-	"embed"
+	"bytes"
+	"encoding/base64"
 	"fmt"
 	"image"
 	_ "image/gif"
@@ -14,14 +15,17 @@ import (
 )
 
 // Dorong is a tiny Windows desktop pet.
-// All sprite frames are embedded into the executable.
-//
-//go:embed assets/spritesheet.gif
-var assets embed.FS
+// The animation sheet is stored as base64 chunks in sprite_data_*_windows.go,
+// so the repository remains self-contained while the final Windows build is
+// still a single Dorong.exe.
+const (
+	spriteSourceSize = 112
+	spriteColumns    = 2
+)
 
 func loadSpriteFromSheet(img image.Image, ox, oy int) (Sprite, error) {
 	b := img.Bounds()
-	if ox < b.Min.X || oy < b.Min.Y || ox+PET_W > b.Max.X || oy+PET_H > b.Max.Y {
+	if ox < b.Min.X || oy < b.Min.Y || ox+spriteSourceSize > b.Max.X || oy+spriteSourceSize > b.Max.Y {
 		return Sprite{}, fmt.Errorf("sprite rectangle outside sheet: %d,%d", ox, oy)
 	}
 	var s Sprite
@@ -40,8 +44,10 @@ func loadSpriteFromSheet(img image.Image, ox, oy int) (Sprite, error) {
 	pix := unsafe.Slice((*byte)(unsafe.Pointer(bits)), PET_W*PET_H*4)
 	i := 0
 	for y := 0; y < PET_H; y++ {
+		sy := oy + y*spriteSourceSize/PET_H
 		for x := 0; x < PET_W; x++ {
-			r, g, bb, a := img.At(ox+x, oy+y).RGBA()
+			sx := ox + x*spriteSourceSize/PET_W
+			r, g, bb, a := img.At(sx, sy).RGBA()
 			aa := uint8(a >> 8)
 			rr := uint8((uint32(r>>8)*uint32(aa) + 127) / 255)
 			gg := uint8((uint32(g>>8)*uint32(aa) + 127) / 255)
@@ -54,24 +60,23 @@ func loadSpriteFromSheet(img image.Image, ox, oy int) (Sprite, error) {
 }
 
 func initFrames() error {
-	f, err := assets.Open("assets/spritesheet.gif")
+	data, err := base64.StdEncoding.DecodeString(spriteAssetBase64)
 	if err != nil {
-		return err
+		return fmt.Errorf("decode embedded sprite sheet: %w", err)
 	}
-	defer f.Close()
-	img, _, err := image.Decode(f)
+	img, _, err := image.Decode(bytes.NewReader(data))
 	if err != nil {
-		return err
+		return fmt.Errorf("decode sprite image: %w", err)
 	}
 	states := []string{"idle", "walk", "sleep", "happy", "held", "focus", "fall", "hang", "look_left", "look_right"}
-	expectedW, expectedH := PET_W*4, PET_H*len(states)
+	expectedW, expectedH := spriteSourceSize*spriteColumns, spriteSourceSize*len(states)
 	b := img.Bounds()
 	if b.Dx() != expectedW || b.Dy() != expectedH {
 		return fmt.Errorf("unexpected spritesheet size %dx%d; want %dx%d", b.Dx(), b.Dy(), expectedW, expectedH)
 	}
 	for row, st := range states {
-		for col := 0; col < 4; col++ {
-			s, err := loadSpriteFromSheet(img, col*PET_W, row*PET_H)
+		for col := 0; col < spriteColumns; col++ {
+			s, err := loadSpriteFromSheet(img, col*spriteSourceSize, row*spriteSourceSize)
 			if err != nil {
 				return err
 			}
