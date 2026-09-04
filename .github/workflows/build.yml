@@ -20,7 +20,7 @@ jobs:
         with:
           go-version: '1.23.x'
 
-      - name: Test core logic and localization
+      - name: Test core logic, localization, movement, and hanging
         shell: pwsh
         run: go test ./...
 

@@ -5,7 +5,7 @@
 **Dorong** is a tiny personal Windows desktop pet written in Go and the Win32 API.
 It runs as a standalone Windows executable and does not require Python, .NET, or any separate runtime installation.
 
-> Current version: **v0.5.4**
+> Current version: **v0.5.5**
 
 ## Features
 
@@ -15,7 +15,8 @@ It runs as a standalone Windows executable and does not require Python, .NET, or
 - Respect the Windows work area so Dorong lands above a docked taskbar
 - Land accurately on ordinary application-window tops, including narrow edges under either foot
 - Walk left and right on application windows while adapting to moved or resized support windows
-- Occasionally hang from an application-window edge
+- Occasionally walk to a window edge and visibly hang from the actual edge
+- Follow a moved/resized support window while hanging, then fall naturally if the support disappears
 - Double-click the head area to pet Dorong
 - Idle reaction that looks toward the mouse cursor
 - Idle / walk / sleep / happy / held / focus / fall / hang animation states
@@ -71,6 +72,7 @@ Dorong/
 ├─ localization.go
 ├─ settings.go
 ├─ movement.go
+├─ hanging.go
 ├─ physics.go
 ├─ *_test.go
 ├─ sprite_data_windows.go

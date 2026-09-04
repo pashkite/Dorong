@@ -11,7 +11,7 @@ import (
 
 const (
 	AppName    = "Dorong"
-	AppVersion = "0.5.4"
+	AppVersion = "0.5.5"
 	PET_W      = 236
 	PET_H      = 236
 )
@@ -367,6 +367,9 @@ func validSupportWindow(hwnd uintptr) (RECT, bool) {
 	if rr, _, _ := procGetWindowRect.Call(hwnd, uintptr(unsafe.Pointer(&r))); rr == 0 {
 		return RECT{}, false
 	}
+	if r.Right-r.Left < 80 || r.Bottom-r.Top < 60 {
+		return RECT{}, false
+	}
 	return r, true
 }
 
@@ -414,6 +417,42 @@ func startFall(initial float64) {
 	pet.walking = false
 	pet.edgeTarget = false
 	pet.hanging = false
+}
+
+func syncHangPose() bool {
+	if !pet.hanging || pet.supportHwnd == 0 {
+		return false
+	}
+	r, ok := validSupportWindow(pet.supportHwnd)
+	if !ok {
+		return false
+	}
+	wa := workArea()
+	support := ScreenRect{Left: r.Left, Top: r.Top, Right: r.Right, Bottom: r.Bottom}
+	area := ScreenRect{Left: wa.Left, Top: wa.Top, Right: wa.Right, Bottom: wa.Bottom}
+	x, y := hangPose(support, area, PET_W, PET_H, pet.hangSide)
+	cx, cy := currentPos()
+	if cx != x || cy != y {
+		setPos(x, y)
+	}
+	return true
+}
+
+func updateHanging(now time.Time) {
+	if !pet.hanging {
+		return
+	}
+	if !syncHangPose() {
+		startFall(1.5)
+		return
+	}
+	if now.Before(pet.hangUntil) {
+		return
+	}
+	x, y := currentPos()
+	x, y = hangReleasePosition(x, y, pet.hangSide)
+	setPos(x, y)
+	startFall(1.5)
 }
 
 func updateFalling() {
@@ -625,13 +664,17 @@ func updateWalking(now time.Time) {
 	pet.targetX = 0
 	if pet.edgeTarget && pet.supportHwnd != 0 {
 		pet.edgeTarget = false
-		pet.hanging = true
-		pet.hangUntil = now.Add(1200 * time.Millisecond)
 		lo, hi := supportXRange()
 		if abs32(nx-lo) < abs32(nx-hi) {
 			pet.hangSide = -1
 		} else {
 			pet.hangSide = 1
+		}
+		pet.hanging = true
+		pet.hangUntil = now.Add(1400 * time.Millisecond)
+		if !syncHangPose() {
+			startFall(0)
+			return
 		}
 		showBubble(tr("hang"), 900*time.Millisecond)
 	}
@@ -661,21 +704,14 @@ func tick() {
 		message(AppName, tr("alarm_dialog"))
 	}
 
-	if pet.hanging && now.After(pet.hangUntil) {
-		x, y := currentPos()
-		if pet.hangSide < 0 {
-			x -= 8
-		} else {
-			x += 8
-		}
-		setPos(x, y+5)
-		startFall(1.5)
+	if pet.hanging {
+		updateHanging(now)
 	}
 
 	if pet.falling {
 		updateFalling()
-	} else {
-		if pet.supportHwnd != 0 && !pet.dragging && !pet.hanging && !pet.walking {
+	} else if !pet.hanging {
+		if pet.supportHwnd != 0 && !pet.dragging && !pet.walking {
 			if !snapToCurrentSupport() {
 				startFall(0)
 			}

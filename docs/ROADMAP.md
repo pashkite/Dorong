@@ -7,7 +7,7 @@
 - Respect the Windows work area and docked taskbar
 - Accurate landing on ordinary application-window tops
 - Stable left/right walking on application windows, including x=0 targets and resized windows
-- Window-edge hanging behavior
+- Stable window-edge hanging that follows moved/resized support windows and falls when support disappears
 - Head-petting hit area
 - Cursor-following idle reaction
 - Korean / English runtime language selection with persistent preference
