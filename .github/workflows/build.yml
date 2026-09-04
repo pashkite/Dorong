@@ -25,10 +25,11 @@ jobs:
         run: |
           $version = (Get-Content VERSION -Raw).Trim()
           $source = Get-Content core_windows.go -Raw
-          $patched = [regex]::Replace($source, 'AppVersion\s*=\s*"[^"]+"', "AppVersion = `"$version`"")
-          if ($patched -eq $source) {
+          $pattern = 'AppVersion\s*=\s*"[^"]+"'
+          if ($source -notmatch $pattern) {
             throw 'AppVersion marker was not found in core_windows.go'
           }
+          $patched = [regex]::Replace($source, $pattern, "AppVersion = `"$version`"")
           Set-Content core_windows.go -Value $patched -NoNewline -Encoding utf8
 
       - name: Test core logic, localization, movement, and hanging
