@@ -42,11 +42,39 @@ jobs:
           $version = (Get-Content VERSION -Raw).Trim()
           go build -trimpath -ldflags="-H=windowsgui -s -w" -o "Dorong-v$version.exe" .
 
-      - name: Upload Windows build artifact
+      - name: Ensure Inno Setup is available
+        shell: pwsh
+        run: |
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) {
+            choco install innosetup --no-progress -y
+          }
+          if (-not (Test-Path $iscc)) {
+            throw "Inno Setup compiler not found at $iscc"
+          }
+
+      - name: Build versioned Dorong Setup EXE
+        shell: pwsh
+        run: |
+          $version = (Get-Content VERSION -Raw).Trim()
+          $portable = "Dorong-v$version.exe"
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          & $iscc "/DMyAppVersion=$version" "/DMyAppExeName=$portable" "installer\Dorong.iss"
+          if ($LASTEXITCODE -ne 0) {
+            throw "Inno Setup build failed with exit code $LASTEXITCODE"
+          }
+          $setup = "Dorong-Setup-v$version.exe"
+          if (-not (Test-Path $setup)) {
+            throw "$setup was not created"
+          }
+
+      - name: Upload Windows build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: Dorong-windows-amd64
-          path: Dorong-v*.exe
+          path: |
+            Dorong-v*.exe
+            Dorong-Setup-v*.exe
           if-no-files-found: error
 
       - name: Publish versioned GitHub release
@@ -56,10 +84,20 @@ jobs:
         run: |
           $version = (Get-Content VERSION -Raw).Trim()
           $tag = "v$version"
-          $exe = "Dorong-v$version.exe"
+          $portable = "Dorong-v$version.exe"
+          $setup = "Dorong-Setup-v$version.exe"
+          $notes = @"
+          Windows 64-bit release of Dorong $tag.
+
+          - Dorong-Setup-v$version.exe: recommended installer. Adds Start Menu/uninstall registration and offers an optional desktop shortcut.
+          - Dorong-v$version.exe: portable standalone build. No installation is required.
+
+          No Python, Go, or .NET runtime is required.
+          "@
           gh release view $tag --repo "${{ github.repository }}" *> $null
           if ($LASTEXITCODE -eq 0) {
-            gh release upload $tag $exe --clobber --repo "${{ github.repository }}"
+            gh release upload $tag $portable $setup --clobber --repo "${{ github.repository }}"
+            gh release edit $tag --repo "${{ github.repository }}" --notes $notes
           } else {
-            gh release create $tag $exe --repo "${{ github.repository }}" --target "${{ github.sha }}" --title "Dorong $tag" --notes "Windows 64-bit standalone build of Dorong $tag. No Python, Go, or .NET runtime is required to run the prebuilt EXE."
+            gh release create $tag $portable $setup --repo "${{ github.repository }}" --target "${{ github.sha }}" --title "Dorong $tag" --notes $notes
           }
