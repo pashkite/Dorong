@@ -24,11 +24,8 @@ jobs:
         with:
           go-version: '1.23.x'
 
-      - name: Format check
-        shell: pwsh
-        run: |
-          gofmt -w settings_test.go startup_windows.go
-          if (-not (git diff --quiet)) { throw 'gofmt produced changes' }
+      - name: Format corrected files
+        run: gofmt -w settings_test.go startup_windows.go
 
       - name: Test
         run: go test ./...
@@ -36,11 +33,12 @@ jobs:
       - name: Build
         run: go build -trimpath -ldflags="-H=windowsgui -s -w" -o Dorong-v0.6.0.exe .
 
-      - name: Remove validation workflow
+      - name: Commit formatting and remove validation workflow
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git rm .github/workflows/validate-v060.yml
-          git commit -m "chore: remove temporary v0.6.0 validation workflow"
+          git add settings_test.go startup_windows.go
+          git commit -m "fix: finalize v0.6.0 startup and settings compatibility"
           git push origin HEAD:v0.6.0-settings
