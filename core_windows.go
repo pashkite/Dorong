@@ -12,7 +12,7 @@ import (
 
 const (
 	AppName    = "Dorong"
-	AppVersion = "0.5.1"
+	AppVersion = "0.5.2"
 	PET_W      = 236
 	PET_H      = 236
 )
@@ -437,15 +437,17 @@ func updateFalling() {
 	}
 
 	wa := workArea()
-	if landedY, landed := resolveFloorLanding(ny, PET_H, wa.Bottom); landed {
+	area := ScreenRect{Left: wa.Left, Top: wa.Top, Right: wa.Right, Bottom: wa.Bottom}
+	resolvedX, resolvedY, landed := resolveWorkAreaLanding(x, ny, PET_W, PET_H, area)
+	if landed {
 		pet.falling = false
 		pet.vy = 0
 		pet.supportHwnd = 0
-		setPos(clamp32(x, wa.Left, wa.Right-PET_W), landedY)
+		setPos(resolvedX, resolvedY)
 		pet.happyUntil = time.Now().Add(350 * time.Millisecond)
 		return
 	}
-	setPos(clamp32(x, wa.Left, wa.Right-PET_W), ny)
+	setPos(resolvedX, resolvedY)
 }
 
 func updateCursorLook() {
