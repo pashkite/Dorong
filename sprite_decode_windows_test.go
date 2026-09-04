@@ -18,10 +18,12 @@ func TestEmbeddedSpriteSheetDecodes(t *testing.T) {
 	if err != nil {
 		t.Fatalf("decode embedded sprite image: %v", err)
 	}
-	if format != "png" {
-		t.Fatalf("unexpected sprite format %q; want png", format)
+	if format != "gif" {
+		t.Fatalf("unexpected sprite format %q; want gif", format)
 	}
-	if img.Bounds().Dx() != spriteSourceSize*spriteColumns {
-		t.Fatalf("unexpected sprite width %d", img.Bounds().Dx())
+	wantW := spriteSourceSize * spriteColumns
+	wantH := spriteSourceSize * 10
+	if img.Bounds().Dx() != wantW || img.Bounds().Dy() != wantH {
+		t.Fatalf("unexpected sprite size %dx%d; want %dx%d", img.Bounds().Dx(), img.Bounds().Dy(), wantW, wantH)
 	}
 }
