@@ -52,7 +52,7 @@ func setStartupEnabled(enabled bool) error {
 	if err != nil {
 		return err
 	}
-	command := `"` + exe + `"`
+	command := "\"" + exe + "\""
 	value, err := syscall.UTF16FromString(command)
 	if err != nil {
 		return err
