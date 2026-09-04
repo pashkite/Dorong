@@ -4,7 +4,6 @@ package main
 
 import (
 	"fmt"
-	"math"
 	"math/rand"
 	"syscall"
 	"time"
@@ -13,7 +12,7 @@ import (
 
 const (
 	AppName    = "Dorong"
-	AppVersion = "0.5.0"
+	AppVersion = "0.5.1"
 	PET_W      = 236
 	PET_H      = 236
 )
@@ -419,8 +418,9 @@ func updateFalling() {
 	}
 	x, y := currentPos()
 	oldBottom := y + PET_H
-	pet.vy = math.Min(pet.vy+1.15, 19)
-	ny := y + int32(math.Round(pet.vy))
+	var dy int32
+	pet.vy, dy = nextFallStep(pet.vy)
+	ny := y + dy
 	newBottom := ny + PET_H
 	centerX := x + PET_W/2
 
@@ -437,12 +437,11 @@ func updateFalling() {
 	}
 
 	wa := workArea()
-	floorY := wa.Bottom - PET_H
-	if ny >= floorY {
+	if landedY, landed := resolveFloorLanding(ny, PET_H, wa.Bottom); landed {
 		pet.falling = false
 		pet.vy = 0
 		pet.supportHwnd = 0
-		setPos(clamp32(x, wa.Left, wa.Right-PET_W), floorY)
+		setPos(clamp32(x, wa.Left, wa.Right-PET_W), landedY)
 		pet.happyUntil = time.Now().Add(350 * time.Millisecond)
 		return
 	}
