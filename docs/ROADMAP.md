@@ -1,6 +1,12 @@
 # Dorong Roadmap
 
-## v0.5.x — current
+## v0.6.x — current
+
+- v0.6.0: configurable focus/alarm duration UI with persistent settings
+- v0.6.0: native Windows settings window and system-tray integration
+- v0.6.0: optional startup-with-Windows registration
+
+## v0.5.x — completed
 
 - Rename project and app to Dorong
 - Gravity after drag-and-drop
@@ -22,9 +28,6 @@
 
 ## Next
 
-- Configurable focus/alarm duration UI
-- System tray icon and settings window
-- Startup-with-Windows option
 - Persistent affection / interaction counter
 - Additional hand-drawn animation frames for climbing
 - Optional skin pack loading from a folder

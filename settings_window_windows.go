@@ -21,7 +21,7 @@ const (
 	wsExControlParent = 0x00010000
 
 	esNumber        = 0x00002000
-	bsAutoCheckbox = 0x00000003
+	bsAutoCheckbox  = 0x00000003
 	bsDefPushButton = 0x00000001
 
 	wmClose    = 0x0010

@@ -24,7 +24,7 @@ const (
 	nifTip     = 0x00000004
 
 	idiApplication = 32512
-	trayIconID      = 1
+	trayIconID     = 1
 )
 
 type GUID struct {

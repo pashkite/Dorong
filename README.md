@@ -9,23 +9,23 @@
 
 **Dorong(도롱)** 은 Go와 Win32 API로 만든 개인용 Windows 데스크톱 펫입니다. Python, .NET 같은 별도 런타임 없이 단일 EXE로 실행할 수 있습니다.
 
-> 현재 버전: **v0.5.9**
+> 현재 버전: **v0.6.0**
 
 ### 다운로드
 
-[⬇ **Dorong v0.5.9 EXE 다운로드**](https://github.com/pashkite/Dorong/releases/download/v0.5.9/Dorong-v0.5.9.exe)
+[⬇ **Dorong v0.6.0 EXE 다운로드**](https://github.com/pashkite/Dorong/releases/download/v0.6.0/Dorong-v0.6.0.exe)
 
 Windows 64비트용 단일 실행 파일입니다. 저장소가 비공개인 동안에는 GitHub에 로그인한 계정만 릴리스 파일을 받을 수 있습니다.
 
-### v0.5.9 변경 사항
+### v0.6.0 변경 사항
 
-- 창 위에 서 있거나 매달린 도롱을 별도 약 60Hz 추적 타이머로 더 부드럽게 동기화
-- 창을 좌우로 이동하면 도롱의 X 좌표도 같은 거리만큼 즉시 따라가도록 개선
-- 도롱이 걷는 중 창이 이동해도 목표 위치가 함께 이동하여 걷기 방향과 목적지가 어긋나지 않음
-- 창 크기 변경 시 불필요하게 옆으로 튀지 않고, 새 창 범위를 벗어날 때만 자연스럽게 안쪽으로 보정
-- 창 상단 높이가 바뀌면 서 있는 높이를 즉시 다시 맞춤
-- 도롱이 올라선 창을 최소화하면 비정상 좌표로 따라가지 않고 자연스럽게 낙하
-- v0.5.8의 멀티 모니터 작업 영역 지원 유지
+- 네이티브 Windows 설정창 추가
+- 집중 타이머 시간을 1~180분 범위에서 직접 설정 가능
+- 알람 시간을 1~1440분 범위에서 직접 설정 가능
+- 집중/알람 시간과 자동 실행 설정을 기존 언어 설정과 함께 영구 저장
+- Windows 시스템 트레이 아이콘 추가: 우클릭으로 기존 메뉴, 더블클릭으로 설정창 열기
+- Windows 시작 시 Dorong 자동 실행 옵션 추가
+- 기존 단일 EXE 구조, 멀티 모니터, 창 추적, 중력/애니메이션 동작 유지
 
 ### 주요 기능
 
@@ -38,7 +38,9 @@ Windows 64비트용 단일 실행 파일입니다. 저장소가 비공개인 동
 - 머리 더블클릭 쓰다듬기 반응
 - 마우스 커서를 바라보는 대기 반응
 - 랜덤 말풍선
-- 25분 집중 타이머 / 10분 알람
+- 설정 가능한 집중 타이머 / 알람
+- 시스템 트레이 아이콘 및 설정창
+- Windows 시작 시 자동 실행 옵션
 - 항상 위에 표시 옵션
 - 앱 UI 한국어 / English 선택 및 설정 저장
 - 네트워크 연결 및 계정 불필요
@@ -67,23 +69,23 @@ go build -ldflags="-H=windowsgui -s -w" -o Dorong.exe .
 
 **Dorong** is a personal Windows desktop pet built with Go and the Win32 API. The prebuilt version runs as a single standalone EXE without requiring Python or .NET.
 
-> Current version: **v0.5.9**
+> Current version: **v0.6.0**
 
 ### Download
 
-[⬇ **Download Dorong v0.5.9 EXE**](https://github.com/pashkite/Dorong/releases/download/v0.5.9/Dorong-v0.5.9.exe)
+[⬇ **Download Dorong v0.6.0 EXE**](https://github.com/pashkite/Dorong/releases/download/v0.6.0/Dorong-v0.6.0.exe)
 
 This is a standalone Windows 64-bit executable. While the repository is private, you need to be signed in to an authorized GitHub account to download the release asset.
 
-### What's new in v0.5.9
+### What's new in v0.6.0
 
-- Added a dedicated ~60 Hz support-window tracker for smoother standing and hanging motion
-- Dorong now follows horizontal window movement by the same delta instead of lagging behind
-- Active walking targets move together with a translated support window
-- Resizing preserves Dorong's screen X when possible and only clamps it when the new window bounds require it
-- Vertical position immediately follows changes to the support window's top edge
-- Minimizing the supporting window now makes Dorong fall naturally instead of following invalid minimized coordinates
-- Preserved the v0.5.8 multi-monitor work-area behavior
+- Added a native Windows settings window
+- Focus duration is configurable from 1 to 180 minutes
+- Alarm duration is configurable from 1 to 1440 minutes
+- Timer and startup preferences persist together with the language setting
+- Added a system-tray icon: right-click opens the existing menu and double-click opens Settings
+- Added an optional Start Dorong with Windows setting
+- Preserved the standalone EXE architecture, multi-monitor behavior, support-window tracking, gravity, and animations
 
 ### Features
 
@@ -96,7 +98,9 @@ This is a standalone Windows 64-bit executable. While the repository is private,
 - Head-petting reaction on double-click
 - Cursor-following idle reaction
 - Random speech bubbles
-- 25-minute focus timer / 10-minute alarm
+- Configurable focus timer / alarm
+- System tray icon and settings window
+- Optional startup with Windows
 - Always-on-top option
 - Korean / English runtime UI selection with persistent preference
 - No network connection or account required by the app itself
@@ -116,23 +120,23 @@ go build -ldflags="-H=windowsgui -s -w" -o Dorong.exe .
 
 **Dorong（ドロン）** は Go と Win32 API で作られた個人用 Windows デスクトップペットです。ビルド済み EXE は Python や .NET を追加インストールせずに単体で実行できます。
 
-> 現在のバージョン: **v0.5.9**
+> 現在のバージョン: **v0.6.0**
 
 ### ダウンロード
 
-[⬇ **Dorong v0.5.9 EXE をダウンロード**](https://github.com/pashkite/Dorong/releases/download/v0.5.9/Dorong-v0.5.9.exe)
+[⬇ **Dorong v0.6.0 EXE をダウンロード**](https://github.com/pashkite/Dorong/releases/download/v0.6.0/Dorong-v0.6.0.exe)
 
 Windows 64bit 用の単体実行ファイルです。リポジトリが非公開の間は、アクセス権のある GitHub アカウントでログインする必要があります。
 
-### v0.5.9 の変更点
+### v0.6.0 の変更点
 
-- ウィンドウ上に立っている／ぶら下がっている Dorong を専用の約 60Hz タイマーでより滑らかに追従
-- ウィンドウを左右に移動すると Dorong の X 座標も同じ距離だけ追従
-- 歩行中にウィンドウが移動しても目標位置を同時にずらし、進行方向のずれを防止
-- リサイズ時は不要な横跳びを避け、新しいウィンドウ範囲から外れる場合だけ内側へ補正
-- ウィンドウ上端の高さ変更に即座に追従
-- 支えているウィンドウを最小化すると不正な座標を追わず自然に落下
-- v0.5.8 のマルチモニター対応を維持
+- Windows ネイティブの設定ウィンドウを追加
+- 集中タイマーを 1〜180 分の範囲で設定可能
+- アラームを 1〜1440 分の範囲で設定可能
+- タイマー時間と自動起動設定を言語設定と一緒に保存
+- システムトレイアイコンを追加：右クリックで既存メニュー、ダブルクリックで設定画面
+- Windows 起動時に Dorong を自動実行するオプションを追加
+- 単一 EXE、マルチモニター、ウィンドウ追従、重力・アニメーション動作を維持
 
 ### 主な機能
 
@@ -145,7 +149,9 @@ Windows 64bit 用の単体実行ファイルです。リポジトリが非公開
 - 頭をダブルクリックすると撫で反応
 - マウスカーソルを見る待機反応
 - ランダム吹き出し
-- 25 分集中タイマー / 10 分アラーム
+- 設定可能な集中タイマー / アラーム
+- システムトレイアイコンと設定画面
+- Windows 起動時の自動実行オプション
 - 常に最前面表示
 - アプリ UI は現在 한국어 / English を選択可能
 
@@ -156,23 +162,23 @@ Windows 64bit 用の単体実行ファイルです。リポジトリが非公開
 
 **Dorong** 是一个使用 Go 和 Win32 API 制作的个人 Windows 桌面宠物。预编译版本可作为单个 EXE 运行，无需另外安装 Python 或 .NET。
 
-> 当前版本: **v0.5.9**
+> 当前版本: **v0.6.0**
 
 ### 下载
 
-[⬇ **下载 Dorong v0.5.9 EXE**](https://github.com/pashkite/Dorong/releases/download/v0.5.9/Dorong-v0.5.9.exe)
+[⬇ **下载 Dorong v0.6.0 EXE**](https://github.com/pashkite/Dorong/releases/download/v0.6.0/Dorong-v0.6.0.exe)
 
 这是 Windows 64 位单文件程序。在仓库保持私有期间，需要使用具有访问权限的 GitHub 账号登录后才能下载 Release 文件。
 
-### v0.5.9 更新
+### v0.6.0 更新
 
-- 使用独立的约 60Hz 支撑窗口跟踪计时器，让站立和悬挂跟随更顺滑
-- 水平移动窗口时，Dorong 的 X 坐标会按相同距离同步移动
-- 行走过程中窗口移动时，行走目标也会同步移动，避免方向和目标错位
-- 调整窗口大小时尽量保持 Dorong 当前屏幕 X 坐标，仅在超出新窗口范围时向内修正
-- 窗口顶部高度变化时立即同步站立高度
-- 支撑窗口最小化后 Dorong 会自然下落，不再跟随最小化窗口的异常坐标
-- 保留 v0.5.8 的多显示器工作区域支持
+- 新增 Windows 原生设置窗口
+- 专注计时可在 1～180 分钟范围内自定义
+- 闹钟可在 1～1440 分钟范围内自定义
+- 计时器和开机启动设置会与语言设置一起持久保存
+- 新增系统托盘图标：右键打开原有菜单，双击打开设置窗口
+- 新增 Windows 启动时自动运行 Dorong 的选项
+- 保持单 EXE、多显示器、窗口跟随、重力与动画行为不变
 
 ### 主要功能
 
@@ -185,7 +191,9 @@ Windows 64bit 用の単体実行ファイルです。リポジトリが非公開
 - 双击头部触发抚摸反应
 - 待机时会看向鼠标光标
 - 随机气泡消息
-- 25 分钟专注计时器 / 10 分钟闹钟
+- 可设置的专注计时器 / 闹钟
+- 系统托盘图标和设置窗口
+- Windows 启动时自动运行选项
 - 置顶选项
 - 应用界面当前支持 한국어 / English
 
