@@ -1,9 +1,10 @@
 # Dorong Roadmap
 
-## v0.5.0 — current
+## v0.5.2 — current
 
 - Rename project and app to Dorong
 - Gravity after drag-and-drop
+- Respect the Windows work area when landing, including docked taskbars
 - Landing on ordinary application-window tops
 - Window-edge hanging behavior
 - Head-petting hit area
