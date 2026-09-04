@@ -205,7 +205,7 @@ func wndProc(hwnd uintptr, msg uint32, wParam, lParam uintptr) uintptr {
 			if abs32(p.X-pet.dragStart.X) > 4 || abs32(p.Y-pet.dragStart.Y) > 4 {
 				pet.dragMoved = true
 			}
-			wa := workArea()
+			wa := workAreaForPoint(p.X, p.Y)
 			nx := clamp32(p.X-pet.dragDX, wa.Left-PET_W/2, wa.Right-PET_W/2)
 			ny := max32(p.Y-pet.dragDY, wa.Top-PET_H/2)
 			setPos(nx, ny)

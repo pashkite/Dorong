@@ -15,10 +15,11 @@
 - Versioned Windows EXE publishing through GitHub Releases
 - v0.5.7: user-approved Dorong character sprites across all animation states
 - v0.5.7: dedicated hanging and falling sprite frames with hang → fall transition
+- v0.5.8: per-monitor Windows work-area and taskbar support across the virtual desktop
+- v0.5.8: cross-monitor drag, landing, window walking, hanging, and speech-bubble placement
 
 ## Next
 
-- Multi-monitor work-area support
 - Smoother support-window tracking while windows are moved or resized
 - Configurable focus/alarm duration UI
 - System tray icon and settings window

@@ -9,28 +9,28 @@
 
 **Dorong(도롱)** 은 Go와 Win32 API로 만든 개인용 Windows 데스크톱 펫입니다. Python, .NET 같은 별도 런타임 없이 단일 EXE로 실행할 수 있습니다.
 
-> 현재 버전: **v0.5.7**
+> 현재 버전: **v0.5.8**
 
 ### 다운로드
 
-[⬇ **Dorong v0.5.7 EXE 다운로드**](https://github.com/pashkite/Dorong/releases/download/v0.5.7/Dorong-v0.5.7.exe)
+[⬇ **Dorong v0.5.8 EXE 다운로드**](https://github.com/pashkite/Dorong/releases/download/v0.5.8/Dorong-v0.5.8.exe)
 
 Windows 64비트용 단일 실행 파일입니다. 저장소가 비공개인 동안에는 GitHub에 로그인한 계정만 릴리스 파일을 받을 수 있습니다.
 
-### v0.5.7 변경 사항
+### v0.5.8 변경 사항
 
-- 사용자가 제공한 Dorong 캐릭터 디자인을 기준으로 전체 애니메이션 스프라이트 교체
-- 매달림 전용 2프레임 애니메이션 추가
-- 매달림이 끝난 뒤 낙하 상태로 이어질 때 전용 낙하 프레임 사용
-- 대기 / 걷기 / 잠자기 / 기쁨 / 들림 / 집중 / 낙하 / 매달림 / 시선 반응을 같은 캐릭터 스타일로 통일
-- 기존 중력, 창 위 착지, 창 위 걷기, 창 가장자리 매달림 로직 유지
-- 단일 README 안에서 언어 선택 시 해당 위치로 스크롤
+- 여러 모니터의 개별 Windows 작업 영역과 작업표시줄 위치 인식
+- 주 모니터뿐 아니라 왼쪽/오른쪽/위쪽에 배치된 보조 모니터로 드래그 이동 지원
+- 음수 가상 화면 좌표를 포함해 현재 모니터의 바닥으로 자연스럽게 낙하 및 착지
+- 창 위 걷기와 창 가장자리 매달림이 해당 창이 있는 모니터의 작업 영역을 기준으로 동작
+- 말풍선이 도롱이 있는 모니터 안에서 벗어나지 않도록 위치 보정
+- v0.5.7의 캐릭터 스프라이트와 매달림 → 낙하 애니메이션 유지
 
 ### 주요 기능
 
 - 투명 배경 애니메이션 데스크톱 펫
 - 드래그 후 놓으면 중력이 적용되어 낙하
-- Windows 작업 영역과 작업표시줄 인식
+- 여러 모니터의 Windows 작업 영역과 작업표시줄 인식
 - 일반 프로그램 창 상단에 착지
 - 창 위를 좌우로 이동하고 창 위치/크기 변화 추적
 - 창 가장자리 매달림 후 자연스럽게 낙하
@@ -66,28 +66,28 @@ go build -ldflags="-H=windowsgui -s -w" -o Dorong.exe .
 
 **Dorong** is a personal Windows desktop pet built with Go and the Win32 API. The prebuilt version runs as a single standalone EXE without requiring Python or .NET.
 
-> Current version: **v0.5.7**
+> Current version: **v0.5.8**
 
 ### Download
 
-[⬇ **Download Dorong v0.5.7 EXE**](https://github.com/pashkite/Dorong/releases/download/v0.5.7/Dorong-v0.5.7.exe)
+[⬇ **Download Dorong v0.5.8 EXE**](https://github.com/pashkite/Dorong/releases/download/v0.5.8/Dorong-v0.5.8.exe)
 
 This is a standalone Windows 64-bit executable. While the repository is private, you need to be signed in to an authorized GitHub account to download the release asset.
 
-### What's new in v0.5.7
+### What's new in v0.5.8
 
-- Replaced the animation sheet with sprites based on the user-provided Dorong character design
-- Added dedicated two-frame hanging animation
-- Added dedicated falling frames used after the hanging state releases
-- Unified idle, walk, sleep, happy, held, focus, fall, hang, and cursor-look visuals around the same character style
-- Preserved gravity, window-top landing, window walking, and edge-hanging behavior
-- README language links now scroll within this single README instead of opening separate files
+- Added per-monitor Windows work-area and taskbar awareness
+- Dorong can now be dragged between monitors arranged left, right, or above the primary display
+- Falling resolves against the current monitor floor, including negative virtual-screen coordinates
+- Window walking and edge hanging use the work area of the monitor containing the support window
+- Speech bubbles stay inside the monitor where Dorong is currently located
+- Preserved the v0.5.7 character sprites and hanging → falling animation flow
 
 ### Features
 
 - Transparent animated desktop pet
 - Gravity after drag-and-drop
-- Windows work-area and taskbar awareness
+- Per-monitor Windows work-area and taskbar awareness
 - Landing on ordinary application-window tops
 - Walking on application windows while following moved/resized support windows
 - Hanging from a window edge and then falling naturally
@@ -114,28 +114,28 @@ go build -ldflags="-H=windowsgui -s -w" -o Dorong.exe .
 
 **Dorong（ドロン）** は Go と Win32 API で作られた個人用 Windows デスクトップペットです。ビルド済み EXE は Python や .NET を追加インストールせずに単体で実行できます。
 
-> 現在のバージョン: **v0.5.7**
+> 現在のバージョン: **v0.5.8**
 
 ### ダウンロード
 
-[⬇ **Dorong v0.5.7 EXE をダウンロード**](https://github.com/pashkite/Dorong/releases/download/v0.5.7/Dorong-v0.5.7.exe)
+[⬇ **Dorong v0.5.8 EXE をダウンロード**](https://github.com/pashkite/Dorong/releases/download/v0.5.8/Dorong-v0.5.8.exe)
 
 Windows 64bit 用の単体実行ファイルです。リポジトリが非公開の間は、アクセス権のある GitHub アカウントでログインする必要があります。
 
-### v0.5.7 の変更点
+### v0.5.8 の変更点
 
-- ユーザーが提供した Dorong のキャラクターデザインを基準にアニメーションスプライトを更新
-- ぶら下がり専用の 2 フレームアニメーションを追加
-- ぶら下がり解除後に落下アニメーションへ自然につながる専用フレームを追加
-- 待機、歩行、睡眠、喜び、持ち上げ、集中、落下、ぶら下がり、視線反応の見た目を統一
-- 重力、ウィンドウ上への着地、ウィンドウ上の歩行、端へのぶら下がり機能を維持
-- README の言語リンクは別ファイルではなく、この README 内の各言語位置へスクロール
+- モニターごとの Windows 作業領域とタスクバー位置を認識
+- プライマリ画面の左・右・上に配置したサブモニターへドラッグ移動可能
+- 負の仮想画面座標を含め、現在のモニター下端へ自然に落下・着地
+- ウィンドウ上の歩行と端へのぶら下がりは、そのウィンドウがあるモニターの作業領域を使用
+- 吹き出しが Dorong のいるモニター外へはみ出さないよう補正
+- v0.5.7 のキャラクタースプライトとぶら下がり → 落下アニメーションを維持
 
 ### 主な機能
 
 - 透明背景のアニメーションデスクトップペット
 - ドラッグして離すと重力で落下
-- Windows の作業領域とタスクバーを認識
+- 複数モニターごとの Windows 作業領域とタスクバーを認識
 - アプリウィンドウ上部への着地
 - ウィンドウ上を左右に歩行
 - ウィンドウ端へのぶら下がりと自然な落下
@@ -153,28 +153,28 @@ Windows 64bit 用の単体実行ファイルです。リポジトリが非公開
 
 **Dorong** 是一个使用 Go 和 Win32 API 制作的个人 Windows 桌面宠物。预编译版本可作为单个 EXE 运行，无需另外安装 Python 或 .NET。
 
-> 当前版本: **v0.5.7**
+> 当前版本: **v0.5.8**
 
 ### 下载
 
-[⬇ **下载 Dorong v0.5.7 EXE**](https://github.com/pashkite/Dorong/releases/download/v0.5.7/Dorong-v0.5.7.exe)
+[⬇ **下载 Dorong v0.5.8 EXE**](https://github.com/pashkite/Dorong/releases/download/v0.5.8/Dorong-v0.5.8.exe)
 
 这是 Windows 64 位单文件程序。在仓库保持私有期间，需要使用具有访问权限的 GitHub 账号登录后才能下载 Release 文件。
 
-### v0.5.7 更新
+### v0.5.8 更新
 
-- 根据用户提供的 Dorong 角色设计更新整套动画精灵
-- 新增专用的两帧悬挂动画
-- 悬挂结束后使用专用下落帧自然过渡到坠落状态
-- 统一待机、行走、睡眠、开心、被拿起、专注、坠落、悬挂和视线反应的角色风格
-- 保留重力、窗口顶部着陆、窗口上行走和边缘悬挂功能
-- README 的语言链接会在同一个 README 内滚动到对应语言位置，不再打开其他文件
+- 支持识别每台显示器各自的 Windows 工作区域与任务栏位置
+- Dorong 可拖动到主显示器左侧、右侧或上方的副显示器
+- 支持负数虚拟桌面坐标，并会落到当前显示器的可用底部
+- 窗口顶部行走和边缘悬挂会以该窗口所在显示器的工作区域为准
+- 气泡会限制在 Dorong 当前所在的显示器范围内
+- 保留 v0.5.7 的角色精灵与悬挂 → 下落动画衔接
 
 ### 主要功能
 
 - 透明背景动画桌面宠物
 - 拖动松手后应用重力
-- 识别 Windows 工作区域和任务栏
+- 识别多显示器各自的 Windows 工作区域和任务栏
 - 可落在普通应用窗口顶部
 - 可在窗口顶部左右移动并跟随窗口位置/尺寸变化
 - 可在窗口边缘悬挂后自然掉落
