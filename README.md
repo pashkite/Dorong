@@ -1,33 +1,41 @@
 # Dorong
 
-[한국어](#lang-ko) | [영어](#lang-en) | [일본어](#lang-ja) | [중국어](#lang-zh)
+[한국어](#lang-ko) | [English](#lang-en) | [日本語](#lang-ja) | [中文](#lang-zh)
 
 ---
 
 <a id="lang-ko"></a>
 ## 한국어
 
-**Dorong(도롱)** 은 Go와 Win32 API로 만든 개인용 Windows 데스크톱 펫입니다. Python, .NET 같은 별도 런타임을 설치하지 않아도 실행할 수 있습니다.
+**Dorong(도롱)** 은 Go와 Win32 API로 만든 개인용 Windows 데스크톱 펫입니다. Python, .NET 같은 별도 런타임 없이 단일 EXE로 실행할 수 있습니다.
 
-> 현재 버전: **v0.5.6**
+> 현재 버전: **v0.5.7**
 
 ### 다운로드
 
-[⬇ **Dorong v0.5.6 EXE 다운로드**](https://github.com/pashkite/Dorong/releases/download/v0.5.6/Dorong-v0.5.6.exe)
+[⬇ **Dorong v0.5.7 EXE 다운로드**](https://github.com/pashkite/Dorong/releases/download/v0.5.7/Dorong-v0.5.7.exe)
 
-Windows 64비트용 단일 실행 파일입니다. 미리 빌드된 EXE를 실행할 때 Python, Go, .NET 설치가 필요하지 않습니다.
+Windows 64비트용 단일 실행 파일입니다. 저장소가 비공개인 동안에는 GitHub에 로그인한 계정만 릴리스 파일을 받을 수 있습니다.
+
+### v0.5.7 변경 사항
+
+- 사용자가 제공한 Dorong 캐릭터 디자인을 기준으로 전체 애니메이션 스프라이트 교체
+- 매달림 전용 2프레임 애니메이션 추가
+- 매달림이 끝난 뒤 낙하 상태로 이어질 때 전용 낙하 프레임 사용
+- 대기 / 걷기 / 잠자기 / 기쁨 / 들림 / 집중 / 낙하 / 매달림 / 시선 반응을 같은 캐릭터 스타일로 통일
+- 기존 중력, 창 위 착지, 창 위 걷기, 창 가장자리 매달림 로직 유지
+- 단일 README 안에서 언어 선택 시 해당 위치로 스크롤
 
 ### 주요 기능
 
-- 투명 배경의 애니메이션 데스크톱 펫
+- 투명 배경 애니메이션 데스크톱 펫
 - 드래그 후 놓으면 중력이 적용되어 낙하
 - Windows 작업 영역과 작업표시줄 인식
 - 일반 프로그램 창 상단에 착지
-- 창 위를 좌우로 이동하고 창 크기/위치 변화 추적
-- 창 가장자리에서 매달리기 및 지지 창이 사라질 때 자연스럽게 낙하
+- 창 위를 좌우로 이동하고 창 위치/크기 변화 추적
+- 창 가장자리 매달림 후 자연스럽게 낙하
 - 머리 더블클릭 쓰다듬기 반응
 - 마우스 커서를 바라보는 대기 반응
-- 대기 / 걷기 / 잠자기 / 기쁨 / 들림 / 집중 / 낙하 / 매달리기 애니메이션
 - 랜덤 말풍선
 - 25분 집중 타이머 / 10분 알람
 - 항상 위에 표시 옵션
@@ -39,28 +47,41 @@ Windows 64비트용 단일 실행 파일입니다. 미리 빌드된 EXE를 실�
 | 조작 | 기능 |
 | --- | --- |
 | 왼쪽 버튼 드래그 | Dorong을 집어서 이동 |
-| 드래그 후 놓기 | Dorong을 떨어뜨림 |
-| 머리 부분 더블클릭 | Dorong 쓰다듬기 |
+| 드래그 후 놓기 | 중력을 적용해 떨어뜨리기 |
+| 머리 더블클릭 | 쓰다듬기 |
 | 오른쪽 클릭 | 메뉴 열기 |
 
-> README는 한국어·영어·일본어·중국어로 제공되며, 현재 앱 자체 UI 언어는 한국어와 English를 지원합니다.
+### 빌드
 
-[↑ 언어 선택으로 이동](#dorong)
+Go 1.23 이상을 권장합니다.
+
+```powershell
+go build -ldflags="-H=windowsgui -s -w" -o Dorong.exe .
+```
 
 ---
 
 <a id="lang-en"></a>
 ## English
 
-**Dorong** is a personal Windows desktop pet written in Go with the Win32 API. The prebuilt executable runs without installing Python, .NET, or another runtime.
+**Dorong** is a personal Windows desktop pet built with Go and the Win32 API. The prebuilt version runs as a single standalone EXE without requiring Python or .NET.
 
-> Current version: **v0.5.6**
+> Current version: **v0.5.7**
 
 ### Download
 
-[⬇ **Download Dorong v0.5.6 EXE**](https://github.com/pashkite/Dorong/releases/download/v0.5.6/Dorong-v0.5.6.exe)
+[⬇ **Download Dorong v0.5.7 EXE**](https://github.com/pashkite/Dorong/releases/download/v0.5.7/Dorong-v0.5.7.exe)
 
-The download is a standalone 64-bit Windows executable. Python, Go, and .NET are not required to run the prebuilt EXE.
+This is a standalone Windows 64-bit executable. While the repository is private, you need to be signed in to an authorized GitHub account to download the release asset.
+
+### What's new in v0.5.7
+
+- Replaced the animation sheet with sprites based on the user-provided Dorong character design
+- Added dedicated two-frame hanging animation
+- Added dedicated falling frames used after the hanging state releases
+- Unified idle, walk, sleep, happy, held, focus, fall, hang, and cursor-look visuals around the same character style
+- Preserved gravity, window-top landing, window walking, and edge-hanging behavior
+- README language links now scroll within this single README instead of opening separate files
 
 ### Features
 
@@ -68,123 +89,17 @@ The download is a standalone 64-bit Windows executable. Python, Go, and .NET are
 - Gravity after drag-and-drop
 - Windows work-area and taskbar awareness
 - Landing on ordinary application-window tops
-- Left/right walking on windows while adapting to moved or resized support windows
-- Window-edge hanging and natural falling when the support disappears
+- Walking on application windows while following moved/resized support windows
+- Hanging from a window edge and then falling naturally
 - Head-petting reaction on double-click
-- Idle cursor-following reaction
-- Idle / walk / sleep / happy / held / focus / fall / hang animation states
+- Cursor-following idle reaction
 - Random speech bubbles
 - 25-minute focus timer / 10-minute alarm
 - Always-on-top option
 - Korean / English runtime UI selection with persistent preference
-- No network connection or account required
+- No network connection or account required by the app itself
 
-### Controls
-
-| Input | Action |
-| --- | --- |
-| Left drag | Pick up and move Dorong |
-| Release after dragging | Drop Dorong and apply gravity |
-| Double-click the head | Pet Dorong |
-| Right-click | Open the interaction menu |
-
-> This README is available in Korean, English, Japanese, and Chinese. The app UI itself currently supports Korean and English.
-
-[↑ Back to language selector](#dorong)
-
----
-
-<a id="lang-ja"></a>
-## 日本語
-
-**Dorong（ドロン）** は、Go と Win32 API で作られた個人用 Windows デスクトップペットです。ビルド済み EXE は Python や .NET などを追加でインストールしなくても実行できます。
-
-> 現在のバージョン: **v0.5.6**
-
-### ダウンロード
-
-[⬇ **Dorong v0.5.6 EXE をダウンロード**](https://github.com/pashkite/Dorong/releases/download/v0.5.6/Dorong-v0.5.6.exe)
-
-64 ビット Windows 用の単体実行ファイルです。ビルド済み EXE の実行に Python、Go、.NET は必要ありません。
-
-### 主な機能
-
-- 透明背景のアニメーションデスクトップペット
-- ドラッグして離すと重力で落下
-- Windows の作業領域とタスクバーを認識
-- 通常のアプリケーションウィンドウ上部に着地
-- ウィンドウ上を左右に歩き、移動やサイズ変更にも追従
-- ウィンドウ端でぶら下がり、支えがなくなると自然に落下
-- 頭をダブルクリックすると撫でる反応
-- 待機中にマウスカーソルを見る反応
-- 待機 / 歩行 / 睡眠 / 喜び / 持ち上げ / 集中 / 落下 / ぶら下がりアニメーション
-- ランダム吹き出し
-- 25 分集中タイマー / 10 分アラーム
-- 常に最前面表示
-- アプリ UI の韓国語 / English 切り替えと設定保存
-- ネット接続・アカウント不要
-
-### 操作
-
-| 操作 | 動作 |
-| --- | --- |
-| 左ボタンドラッグ | Dorong を持ち上げて移動 |
-| ドラッグ後に離す | Dorong を落とす |
-| 頭をダブルクリック | Dorong を撫でる |
-| 右クリック | メニューを開く |
-
-> README は韓国語・英語・日本語・中国語に対応しています。現在、アプリ本体の UI は韓国語と English に対応しています。
-
-[↑ 言語選択へ戻る](#dorong)
-
----
-
-<a id="lang-zh"></a>
-## 中文
-
-**Dorong（多龙）** 是一个使用 Go 和 Win32 API 制作的个人 Windows 桌面宠物。预编译 EXE 无需安装 Python、.NET 或其他额外运行环境即可使用。
-
-> 当前版本: **v0.5.6**
-
-### 下载
-
-[⬇ **下载 Dorong v0.5.6 EXE**](https://github.com/pashkite/Dorong/releases/download/v0.5.6/Dorong-v0.5.6.exe)
-
-这是一个适用于 64 位 Windows 的独立可执行文件。运行预编译 EXE 不需要安装 Python、Go 或 .NET。
-
-### 主要功能
-
-- 透明背景动画桌面宠物
-- 拖放后受重力影响下落
-- 识别 Windows 工作区和任务栏
-- 可落在普通应用窗口顶部
-- 可在窗口顶部左右移动，并跟随窗口移动或尺寸变化
-- 可在窗口边缘悬挂，支撑窗口消失时自然下落
-- 双击头部可触发抚摸反应
-- 待机时会看向鼠标光标
-- 待机 / 行走 / 睡眠 / 开心 / 被提起 / 专注 / 下落 / 悬挂动画
-- 随机气泡台词
-- 25 分钟专注计时器 / 10 分钟提醒
-- 始终置顶选项
-- 应用 UI 支持韩语 / English 切换并保存设置
-- 无需联网或账号
-
-### 操作
-
-| 操作 | 功能 |
-| --- | --- |
-| 按住左键拖动 | 拿起并移动 Dorong |
-| 拖动后松开 | 放下 Dorong 并应用重力 |
-| 双击头部 | 抚摸 Dorong |
-| 右键 | 打开互动菜单 |
-
-> README 提供韩语、英语、日语和中文。应用程序 UI 目前支持韩语和 English。
-
-[↑ 返回语言选择](#dorong)
-
----
-
-## Build from source
+### Build
 
 Go 1.23+ is recommended.
 
@@ -192,25 +107,88 @@ Go 1.23+ is recommended.
 go build -ldflags="-H=windowsgui -s -w" -o Dorong.exe .
 ```
 
-## Project structure
+---
 
-```text
-Dorong/
-├─ app_windows.go
-├─ core_windows.go
-├─ localization.go
-├─ settings.go
-├─ movement.go
-├─ hanging.go
-├─ physics.go
-├─ *_test.go
-├─ sprite_data_*_windows.go
-├─ VERSION
-├─ assets/
-├─ .github/workflows/build.yml
-└─ docs/ROADMAP.md
-```
+<a id="lang-ja"></a>
+## 日本語
 
-## Notes
+**Dorong（ドロン）** は Go と Win32 API で作られた個人用 Windows デスクトップペットです。ビルド済み EXE は Python や .NET を追加インストールせずに単体で実行できます。
 
-This repository is currently a private personal project. If it is made public later, review redistribution rights for the character artwork before publishing the assets.
+> 現在のバージョン: **v0.5.7**
+
+### ダウンロード
+
+[⬇ **Dorong v0.5.7 EXE をダウンロード**](https://github.com/pashkite/Dorong/releases/download/v0.5.7/Dorong-v0.5.7.exe)
+
+Windows 64bit 用の単体実行ファイルです。リポジトリが非公開の間は、アクセス権のある GitHub アカウントでログインする必要があります。
+
+### v0.5.7 の変更点
+
+- ユーザーが提供した Dorong のキャラクターデザインを基準にアニメーションスプライトを更新
+- ぶら下がり専用の 2 フレームアニメーションを追加
+- ぶら下がり解除後に落下アニメーションへ自然につながる専用フレームを追加
+- 待機、歩行、睡眠、喜び、持ち上げ、集中、落下、ぶら下がり、視線反応の見た目を統一
+- 重力、ウィンドウ上への着地、ウィンドウ上の歩行、端へのぶら下がり機能を維持
+- README の言語リンクは別ファイルではなく、この README 内の各言語位置へスクロール
+
+### 主な機能
+
+- 透明背景のアニメーションデスクトップペット
+- ドラッグして離すと重力で落下
+- Windows の作業領域とタスクバーを認識
+- アプリウィンドウ上部への着地
+- ウィンドウ上を左右に歩行
+- ウィンドウ端へのぶら下がりと自然な落下
+- 頭をダブルクリックすると撫で反応
+- マウスカーソルを見る待機反応
+- ランダム吹き出し
+- 25 分集中タイマー / 10 分アラーム
+- 常に最前面表示
+- アプリ UI は現在 한국어 / English を選択可能
+
+---
+
+<a id="lang-zh"></a>
+## 中文
+
+**Dorong** 是一个使用 Go 和 Win32 API 制作的个人 Windows 桌面宠物。预编译版本可作为单个 EXE 运行，无需另外安装 Python 或 .NET。
+
+> 当前版本: **v0.5.7**
+
+### 下载
+
+[⬇ **下载 Dorong v0.5.7 EXE**](https://github.com/pashkite/Dorong/releases/download/v0.5.7/Dorong-v0.5.7.exe)
+
+这是 Windows 64 位单文件程序。在仓库保持私有期间，需要使用具有访问权限的 GitHub 账号登录后才能下载 Release 文件。
+
+### v0.5.7 更新
+
+- 根据用户提供的 Dorong 角色设计更新整套动画精灵
+- 新增专用的两帧悬挂动画
+- 悬挂结束后使用专用下落帧自然过渡到坠落状态
+- 统一待机、行走、睡眠、开心、被拿起、专注、坠落、悬挂和视线反应的角色风格
+- 保留重力、窗口顶部着陆、窗口上行走和边缘悬挂功能
+- README 的语言链接会在同一个 README 内滚动到对应语言位置，不再打开其他文件
+
+### 主要功能
+
+- 透明背景动画桌面宠物
+- 拖动松手后应用重力
+- 识别 Windows 工作区域和任务栏
+- 可落在普通应用窗口顶部
+- 可在窗口顶部左右移动并跟随窗口位置/尺寸变化
+- 可在窗口边缘悬挂后自然掉落
+- 双击头部触发抚摸反应
+- 待机时会看向鼠标光标
+- 随机气泡消息
+- 25 分钟专注计时器 / 10 分钟闹钟
+- 置顶选项
+- 应用界面当前支持 한국어 / English
+
+---
+
+## Repository notes
+
+The Windows build is generated by GitHub Actions from the value in `VERSION`. Successful builds publish `Dorong-v<version>.exe` to the matching GitHub Release automatically.
+
+See [`docs/ROADMAP.md`](docs/ROADMAP.md) for the development roadmap.
