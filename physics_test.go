@@ -121,3 +121,52 @@ func TestResolveWorkAreaLandingDoesNotLandEarly(t *testing.T) {
 		t.Fatalf("position changed before landing: got %d,%d", x, y)
 	}
 }
+
+func TestLandingProbeXsCoverBothFeetAndCenter(t *testing.T) {
+	got := landingProbeXs(100, 236)
+	want := [3]int32{159, 218, 277}
+	if got != want {
+		t.Fatalf("probe Xs = %v, want %v", got, want)
+	}
+}
+
+func TestResolveWindowTopLandingCrossesTopExactly(t *testing.T) {
+	window := ScreenRect{Left: 500, Top: 600, Right: 1100, Bottom: 900}
+	y, landed := resolveWindowTopLanding(600, 590, 607, 236, 236, window)
+	if !landed {
+		t.Fatal("expected landing while crossing the window top")
+	}
+	if y != 364 { // 600 - 236
+		t.Fatalf("landing y = %d, want 364", y)
+	}
+}
+
+func TestResolveWindowTopLandingRejectsUpwardMotion(t *testing.T) {
+	window := ScreenRect{Left: 500, Top: 600, Right: 1100, Bottom: 900}
+	if _, landed := resolveWindowTopLanding(600, 607, 590, 236, 236, window); landed {
+		t.Fatal("must not land while moving upward")
+	}
+}
+
+func TestResolveWindowTopLandingRejectsNoFootOverlap(t *testing.T) {
+	window := ScreenRect{Left: 900, Top: 600, Right: 1200, Bottom: 900}
+	if _, landed := resolveWindowTopLanding(500, 590, 607, 236, 236, window); landed {
+		t.Fatal("landed even though Dorong's foot-contact region misses the window")
+	}
+}
+
+func TestResolveWindowTopLandingRejectsWindowAlreadyPassed(t *testing.T) {
+	window := ScreenRect{Left: 500, Top: 560, Right: 1100, Bottom: 900}
+	if _, landed := resolveWindowTopLanding(600, 590, 607, 236, 236, window); landed {
+		t.Fatal("landed on a top edge that was already passed before this tick")
+	}
+}
+
+func TestResolveWindowTopLandingAllowsNarrowWindowUnderOneFoot(t *testing.T) {
+	// Dorong spans x=400..636. The center is x=518, but this narrow window is
+	// only under the left-foot area. Multi-probe discovery can still find it.
+	window := ScreenRect{Left: 450, Top: 600, Right: 490, Bottom: 850}
+	if _, landed := resolveWindowTopLanding(400, 590, 607, 236, 236, window); !landed {
+		t.Fatal("expected a narrow window under one foot to support Dorong")
+	}
+}
