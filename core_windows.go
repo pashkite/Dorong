@@ -3,7 +3,6 @@
 package main
 
 import (
-	"fmt"
 	"math/rand"
 	"syscall"
 	"time"
@@ -12,7 +11,7 @@ import (
 
 const (
 	AppName    = "Dorong"
-	AppVersion = "0.5.3"
+	AppVersion = "0.5.4"
 	PET_W      = 236
 	PET_H      = 236
 )
@@ -125,6 +124,8 @@ const (
 	ID_SLEEP   = 1007
 	ID_DROP    = 1008
 	ID_EXIT    = 1009
+	ID_LANG_KO = 1010
+	ID_LANG_EN = 1011
 )
 
 type POINT struct{ X, Y int32 }
@@ -183,9 +184,9 @@ type PetState struct {
 	dragDX, dragDY      int32
 	dragStart           POINT
 
-	wander, topmost bool
-	vx, targetX     int32
-	edgeTarget      bool
+	wander, topmost     bool
+	vx, targetX         int32
+	walking, edgeTarget bool
 
 	falling bool
 	vy      float64
@@ -280,6 +281,8 @@ func moveHome() {
 	pet.hanging = false
 	pet.supportHwnd = 0
 	pet.targetX = 0
+	pet.walking = false
+	pet.edgeTarget = false
 	setPos(wa.Right-PET_W-28, wa.Bottom-PET_H)
 }
 
@@ -408,6 +411,7 @@ func startFall(initial float64) {
 	pet.vy = initial
 	pet.supportHwnd = 0
 	pet.targetX = 0
+	pet.walking = false
 	pet.edgeTarget = false
 	pet.hanging = false
 }
@@ -456,7 +460,7 @@ func updateFalling() {
 }
 
 func updateCursorLook() {
-	if pet.dragging || pet.falling || pet.hanging || pet.targetX != 0 || time.Now().Before(pet.sleepUntil) || time.Now().Before(pet.happyUntil) || !pet.focusUntil.IsZero() {
+	if pet.dragging || pet.falling || pet.hanging || pet.walking || time.Now().Before(pet.sleepUntil) || time.Now().Before(pet.happyUntil) || !pet.focusUntil.IsZero() {
 		pet.lookSide = 0
 		return
 	}
@@ -492,7 +496,7 @@ func currentAnimState(now time.Time) string {
 	if now.Before(pet.sleepUntil) {
 		return "sleep"
 	}
-	if pet.targetX != 0 && pet.wander {
+	if pet.walking && pet.wander {
 		return "walk"
 	}
 	if pet.lookSide < 0 {
@@ -557,12 +561,14 @@ func randomAction() {
 	r := rand.Intn(100)
 	switch {
 	case r < 28:
-		phrases := []string{"뭐 하고 있어?", "나 여기 있어.", "물 한 모금 어때?", "오늘도 같이 있자.", "하나씩 해보자!", "쓰담쓰담 대기 중!", "도롱도롱…"}
+		phrases := randomPhrases()
 		showBubble(phrases[rand.Intn(len(phrases))], 2300*time.Millisecond)
 	case r < 48:
 		pet.sleepUntil = now.Add(time.Duration(5+rand.Intn(5)) * time.Second)
 		pet.targetX = 0
-		showBubble("조금만 잘게…", 1800*time.Millisecond)
+		pet.walking = false
+		pet.edgeTarget = false
+		showBubble(tr("sleep_random"), 1800*time.Millisecond)
 	case r < 90 && pet.wander:
 		lo, hi := supportXRange()
 		pet.edgeTarget = false
@@ -580,6 +586,7 @@ func randomAction() {
 			pet.targetX = lo
 		}
 		x, _ := currentPos()
+		pet.walking = true
 		if pet.targetX < x {
 			pet.vx = -2
 		} else {
@@ -590,7 +597,7 @@ func randomAction() {
 }
 
 func updateWalking(now time.Time) {
-	if !pet.wander || pet.dragging || pet.falling || pet.hanging || pet.targetX == 0 {
+	if !pet.wander || pet.dragging || pet.falling || pet.hanging || !pet.walking {
 		return
 	}
 	if pet.supportHwnd != 0 && !snapToCurrentSupport() {
@@ -598,26 +605,36 @@ func updateWalking(now time.Time) {
 		return
 	}
 	x, y := currentPos()
-	if abs32(pet.targetX-x) <= 3 {
-		pet.targetX = 0
-		if pet.edgeTarget && pet.supportHwnd != 0 {
-			pet.edgeTarget = false
-			pet.hanging = true
-			pet.hangUntil = now.Add(1200 * time.Millisecond)
-			lo, hi := supportXRange()
-			if abs32(x-lo) < abs32(x-hi) {
-				pet.hangSide = -1
-			} else {
-				pet.hangSide = 1
-			}
-			showBubble("앗…!", 900*time.Millisecond)
-		}
+	lo, hi := supportXRange()
+	speed := pet.vx
+	if speed < 0 {
+		speed = -speed
+	}
+	nx, arrived := nextWalkX(x, pet.targetX, speed, lo, hi)
+	if nx < x {
+		pet.vx = -speed
+	} else if nx > x {
+		pet.vx = speed
+	}
+	setPos(nx, y)
+	if !arrived {
 		return
 	}
-	nx := x + pet.vx
-	lo, hi := supportXRange()
-	nx = clamp32(nx, lo, hi)
-	setPos(nx, y)
+
+	pet.walking = false
+	pet.targetX = 0
+	if pet.edgeTarget && pet.supportHwnd != 0 {
+		pet.edgeTarget = false
+		pet.hanging = true
+		pet.hangUntil = now.Add(1200 * time.Millisecond)
+		lo, hi := supportXRange()
+		if abs32(nx-lo) < abs32(nx-hi) {
+			pet.hangSide = -1
+		} else {
+			pet.hangSide = 1
+		}
+		showBubble(tr("hang"), 900*time.Millisecond)
+	}
 }
 
 func tick() {
@@ -630,18 +647,18 @@ func tick() {
 		if now.After(pet.focusUntil) {
 			pet.focusUntil = time.Time{}
 			pet.happyUntil = now.Add(2 * time.Second)
-			showBubble("집중 끝! 수고했어.", 5*time.Second)
-			message(AppName, "25분 집중이 끝났어! 잠깐 쉬자.")
+			showBubble(tr("focus_done"), 5*time.Second)
+			message(AppName, tr("focus_dialog"))
 		} else if now.Second()%30 == 0 && now.Nanosecond() < 80_000_000 {
 			rem := time.Until(pet.focusUntil)
-			showBubble(fmt.Sprintf("집중 중 · %02d:%02d", int(rem.Minutes()), int(rem.Seconds())%60), 1100*time.Millisecond)
+			showBubble(tr("focus_progress", int(rem.Minutes()), int(rem.Seconds())%60), 1100*time.Millisecond)
 		}
 	}
 	if !pet.alarmUntil.IsZero() && now.After(pet.alarmUntil) {
 		pet.alarmUntil = time.Time{}
 		pet.happyUntil = now.Add(2 * time.Second)
-		showBubble("알람이야! 시간이 됐어.", 5*time.Second)
-		message(AppName, "10분 알람 시간이 됐어!")
+		showBubble(tr("alarm_done"), 5*time.Second)
+		message(AppName, tr("alarm_dialog"))
 	}
 
 	if pet.hanging && now.After(pet.hangUntil) {
@@ -658,7 +675,7 @@ func tick() {
 	if pet.falling {
 		updateFalling()
 	} else {
-		if pet.supportHwnd != 0 && !pet.dragging && !pet.hanging && pet.targetX == 0 {
+		if pet.supportHwnd != 0 && !pet.dragging && !pet.hanging && !pet.walking {
 			if !snapToCurrentSupport() {
 				startFall(0)
 			}
