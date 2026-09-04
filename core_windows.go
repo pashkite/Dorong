@@ -11,7 +11,7 @@ import (
 
 const (
 	AppName    = "Dorong"
-	AppVersion = "0.5.5"
+	AppVersion = "0.5.8"
 	PET_W      = 236
 	PET_H      = 236
 )
@@ -253,14 +253,7 @@ func message(title, text string) {
 }
 
 func workArea() RECT {
-	var r RECT
-	ok, _, _ := procSystemParametersInfoW.Call(SPI_GETWORKAREA, 0, uintptr(unsafe.Pointer(&r)), 0)
-	if ok != 0 && r.Right > r.Left && r.Bottom > r.Top {
-		return r
-	}
-	sw, _, _ := procGetSystemMetrics.Call(0)
-	sh, _, _ := procGetSystemMetrics.Call(1)
-	return RECT{0, 0, int32(sw), int32(sh)}
+	return workAreaForPet()
 }
 
 func currentPos() (int32, int32) {
@@ -378,6 +371,7 @@ func supportXRange() (int32, int32) {
 	if pet.supportHwnd == 0 {
 		return wa.Left, wa.Right - PET_W
 	}
+	wa = workAreaForWindow(pet.supportHwnd)
 	r, ok := validSupportWindow(pet.supportHwnd)
 	if !ok {
 		return wa.Left, wa.Right - PET_W
@@ -427,7 +421,7 @@ func syncHangPose() bool {
 	if !ok {
 		return false
 	}
-	wa := workArea()
+	wa := workAreaForWindow(pet.supportHwnd)
 	support := ScreenRect{Left: r.Left, Top: r.Top, Right: r.Right, Bottom: r.Bottom}
 	area := ScreenRect{Left: wa.Left, Top: wa.Top, Right: wa.Right, Bottom: wa.Bottom}
 	x, y := hangPose(support, area, PET_W, PET_H, pet.hangSide)
@@ -484,7 +478,7 @@ func updateFalling() {
 		}
 	}
 
-	wa := workArea()
+	wa := workAreaForPoint(x+PET_W/2, newBottom)
 	area := ScreenRect{Left: wa.Left, Top: wa.Top, Right: wa.Right, Bottom: wa.Bottom}
 	resolvedX, resolvedY, landed := resolveWorkAreaLanding(x, ny, PET_W, PET_H, area)
 	if landed {
