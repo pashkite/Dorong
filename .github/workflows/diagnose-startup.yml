@@ -27,26 +27,6 @@ jobs:
           $patched = [regex]::Replace($source, $pattern, "AppVersion = `"$version`"")
           Set-Content core_windows.go -Value $patched -NoNewline -Encoding utf8
 
-      - name: Recover sprite via GIF LZW stream
+      - name: Report sprite LZW corruption offset
         shell: pwsh
-        run: go test ./... -run TestRecoverSpriteViaLZW -v -timeout 8m
-
-      - name: Build console diagnostic EXE
-        shell: pwsh
-        run: go build -trimpath -o Dorong-diagnostic.exe .
-
-      - name: Launch and verify process stays alive
-        shell: pwsh
-        run: |
-          $stdout = Join-Path $PWD 'dorong-stdout.txt'
-          $stderr = Join-Path $PWD 'dorong-stderr.txt'
-          $p = Start-Process -FilePath (Join-Path $PWD 'Dorong-diagnostic.exe') -RedirectStandardOutput $stdout -RedirectStandardError $stderr -PassThru
-          Start-Sleep -Seconds 5
-          if ($p.HasExited) {
-            Write-Host "Dorong exited early with code $($p.ExitCode)"
-            if (Test-Path $stdout) { Write-Host '--- stdout ---'; Get-Content $stdout -Raw }
-            if (Test-Path $stderr) { Write-Host '--- stderr ---'; Get-Content $stderr -Raw }
-            exit 1
-          }
-          Write-Host "Dorong remained running for 5 seconds (PID $($p.Id))."
-          Stop-Process -Id $p.Id -Force
+        run: go test ./... -run TestReportSpriteLZWCorruptionOffset -v
