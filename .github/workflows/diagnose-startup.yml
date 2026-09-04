@@ -27,17 +27,9 @@ jobs:
           $patched = [regex]::Replace($source, $pattern, "AppVersion = `"$version`"")
           Set-Content core_windows.go -Value $patched -NoNewline -Encoding utf8
 
-      - name: Inspect sprite asset header
+      - name: Recover missing sprite character
         shell: pwsh
-        run: |
-          $bytes = [System.IO.File]::ReadAllBytes((Join-Path $PWD 'assets\sprites_v057.png'))
-          $head = $bytes[0..15]
-          Write-Host "Sprite size: $($bytes.Length) bytes"
-          Write-Host "Sprite magic: $([BitConverter]::ToString($head))"
-
-      - name: Inspect sprite chunks and decode
-        shell: pwsh
-        run: go test ./... -run 'Test(InspectSpriteChunks|EmbeddedSpriteSheetDecodes)' -v
+        run: go test ./... -run TestRecoverMissingSpriteCharacter -v
 
       - name: Build console diagnostic EXE
         shell: pwsh
