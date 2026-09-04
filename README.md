@@ -1,25 +1,25 @@
 # Dorong
 
 **Dorong** is a tiny personal Windows desktop pet written in Go and the Win32 API.
-It runs as a standalone Windows executable and does not require Python, .NET, or a separate runtime installation.
+It runs as a standalone Windows executable and does not require Python, .NET, or any separate runtime installation.
 
 > Current version: **v0.5.0**
 
 ## Features
 
-- Transparent always-on-top desktop pet
-- Embedded animated sprite frames
-- Idle / walking / sleeping / happy / held / focus animations
+- Transparent animated desktop pet
 - Drag Dorong anywhere on the desktop
-- Release after dragging to make Dorong fall with gravity
+- Release after dragging to apply gravity
 - Land on the top edge of ordinary application windows
-- Walk along a window and occasionally hang from its edge before falling
-- Double-click Dorong's head to pet it
-- Cursor-following idle reaction
+- Walk along an application window and occasionally hang from its edge
+- Double-click the head area to pet Dorong
+- Idle reaction that looks toward the mouse cursor
+- Idle / walk / sleep / happy / held / focus / fall / hang animation states
 - Random speech bubbles
 - 25-minute focus timer
 - 10-minute alarm
-- Right-click interaction menu
+- Always-on-top toggle
+- Standalone 64-bit Windows executable
 - No network connection or account required
 
 ## Controls
@@ -33,7 +33,7 @@ It runs as a standalone Windows executable and does not require Python, .NET, or
 
 ## Run
 
-Download or build `Dorong.exe`, then double-click it on 64-bit Windows.
+Download the Windows build artifact from GitHub Actions, or build it yourself.
 
 No Python, Go, or .NET installation is required **to run the prebuilt executable**.
 
@@ -55,16 +55,21 @@ GOOS=windows GOARCH=amd64 go build -ldflags='-H=windowsgui -s -w' -o Dorong.exe 
 
 ```text
 Dorong/
-├─ main.go
+├─ core_windows.go
+├─ app_windows.go
 ├─ go.mod
-├─ frames/          # sprite animation frames embedded into Dorong.exe
-├─ assets/          # preview images
+├─ assets/
+│  ├─ spritesheet.gif      # all embedded animation frames
+│  └─ icon.png
+├─ .github/workflows/
+│  └─ build.yml
 └─ docs/
+   └─ ROADMAP.md
 ```
 
 ## Notes
 
-This repository is for a personal desktop-pet project. The included character artwork is used as the project's private/personal skin. If this repository is made public later, review the rights to any character artwork before redistributing it.
+This repository is currently a **private personal project**. If the repository is made public later, review the redistribution rights for character artwork before publishing the assets.
 
 ## Roadmap
 
