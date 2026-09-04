@@ -19,6 +19,10 @@ func TestLoadSettingsBackfillsNewTimerFields(t *testing.T) {
 	if err := os.WriteFile(path, []byte(`{"language":"en"}`), 0o644); err != nil {
 		t.Fatal(err)
 	}
+	data := []byte("{\"language\":\"en\"}")
+	if err := os.WriteFile(path, data, 0o644); err != nil {
+		t.Fatal(err)
+	}
 	got := loadSettingsFrom(path)
 	if got.Language != LangEN || got.FocusMinutes != defaultFocusMinutes || got.AlarmMinutes != defaultAlarmMinutes {
 		t.Fatalf("unexpected backfill result: %+v", got)
