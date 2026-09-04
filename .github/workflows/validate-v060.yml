@@ -1,0 +1,46 @@
+name: Validate Dorong v0.6.0
+
+on:
+  push:
+    branches:
+      - 'v0.6.0-settings'
+    paths:
+      - '.github/workflows/validate-v060.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  validate:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: 'v0.6.0-settings'
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23.x'
+
+      - name: Format check
+        shell: pwsh
+        run: |
+          gofmt -w settings_test.go startup_windows.go
+          if (-not (git diff --quiet)) { throw 'gofmt produced changes' }
+
+      - name: Test
+        run: go test ./...
+
+      - name: Build
+        run: go build -trimpath -ldflags="-H=windowsgui -s -w" -o Dorong-v0.6.0.exe .
+
+      - name: Remove validation workflow
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/validate-v060.yml
+          git commit -m "chore: remove temporary v0.6.0 validation workflow"
+          git push origin HEAD:v0.6.0-settings
