@@ -168,6 +168,7 @@ func wndProc(hwnd uintptr, msg uint32, wParam, lParam uintptr) uintptr {
 	switch msg {
 	case WM_DESTROY:
 		procKillTimer.Call(hwnd, 1)
+		procKillTimer.Call(hwnd, 2)
 		if pet.bubbleFont != 0 {
 			procDeleteObject.Call(pet.bubbleFont)
 		}
@@ -178,6 +179,10 @@ func wndProc(hwnd uintptr, msg uint32, wParam, lParam uintptr) uintptr {
 		procPostQuitMessage.Call(0)
 		return 0
 	case WM_TIMER:
+		if wParam == 2 {
+			updateSupportMotion()
+			return 0
+		}
 		tick()
 		return 0
 	case WM_LBUTTONDOWN:
@@ -339,6 +344,7 @@ func main() {
 	procShowWindow.Call(hwnd, SW_SHOW)
 	procUpdateWindow.Call(hwnd)
 	procSetTimer.Call(hwnd, 1, 40, 0)
+	procSetTimer.Call(hwnd, 2, 16, 0)
 	showBubble(tr("greeting"), 1900*time.Millisecond)
 
 	var m MSG

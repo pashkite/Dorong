@@ -11,7 +11,7 @@ import (
 
 const (
 	AppName    = "Dorong"
-	AppVersion = "0.5.8"
+	AppVersion = "0.5.9"
 	PET_W      = 236
 	PET_H      = 236
 )
@@ -55,6 +55,7 @@ var (
 	procGetAncestor           = user32.NewProc("GetAncestor")
 	procIsWindow              = user32.NewProc("IsWindow")
 	procIsWindowVisible       = user32.NewProc("IsWindowVisible")
+	procIsIconic              = user32.NewProc("IsIconic")
 	procGetDesktopWindow      = user32.NewProc("GetDesktopWindow")
 	procGetShellWindow        = user32.NewProc("GetShellWindow")
 
@@ -353,7 +354,8 @@ func validSupportWindow(hwnd uintptr) (RECT, bool) {
 	}
 	ok, _, _ := procIsWindow.Call(hwnd)
 	vis, _, _ := procIsWindowVisible.Call(hwnd)
-	if ok == 0 || vis == 0 {
+	iconic, _, _ := procIsIconic.Call(hwnd)
+	if ok == 0 || vis == 0 || iconic != 0 {
 		return RECT{}, false
 	}
 	var r RECT
@@ -471,6 +473,7 @@ func updateFalling() {
 				pet.falling = false
 				pet.vy = 0
 				pet.supportHwnd = h
+				rememberSupportWindow(h, r)
 				setPos(x, landingY)
 				pet.happyUntil = time.Now().Add(350 * time.Millisecond)
 				return

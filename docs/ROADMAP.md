@@ -17,10 +17,11 @@
 - v0.5.7: dedicated hanging and falling sprite frames with hang → fall transition
 - v0.5.8: per-monitor Windows work-area and taskbar support across the virtual desktop
 - v0.5.8: cross-monitor drag, landing, window walking, hanging, and speech-bubble placement
+- v0.5.9: dedicated ~60 Hz support-window tracking without changing gravity/animation timing
+- v0.5.9: horizontal follow on moved windows, resize clamping, and minimized-window fall handling
 
 ## Next
 
-- Smoother support-window tracking while windows are moved or resized
 - Configurable focus/alarm duration UI
 - System tray icon and settings window
 - Startup-with-Windows option
