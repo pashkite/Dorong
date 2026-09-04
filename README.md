@@ -3,13 +3,14 @@
 **Dorong** is a tiny personal Windows desktop pet written in Go and the Win32 API.
 It runs as a standalone Windows executable and does not require Python, .NET, or any separate runtime installation.
 
-> Current version: **v0.5.0**
+> Current version: **v0.5.2**
 
 ## Features
 
 - Transparent animated desktop pet
 - Drag Dorong anywhere on the desktop
 - Release after dragging to apply gravity
+- Respect the Windows work area so Dorong lands above a docked taskbar
 - Land on the top edge of ordinary application windows
 - Walk along an application window and occasionally hang from its edge
 - Double-click the head area to pet Dorong
