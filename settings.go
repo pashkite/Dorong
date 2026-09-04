@@ -18,12 +18,14 @@ type appSettings struct {
 	FocusMinutes       int      `json:"focus_minutes"`
 	AlarmMinutes       int      `json:"alarm_minutes"`
 	StartupWithWindows bool     `json:"startup_with_windows"`
+	PetCount           int      `json:"pet_count"`
 }
 
 var (
 	focusMinutes       = defaultFocusMinutes
 	alarmMinutes       = defaultAlarmMinutes
 	startupWithWindows bool
+	persistentPetCount int
 )
 
 func defaultAppSettings() appSettings {
@@ -31,6 +33,7 @@ func defaultAppSettings() appSettings {
 		Language:     LangKO,
 		FocusMinutes: defaultFocusMinutes,
 		AlarmMinutes: defaultAlarmMinutes,
+		PetCount:     0,
 	}
 }
 
@@ -48,6 +51,7 @@ func normalizeAppSettings(s appSettings) appSettings {
 	s.Language = normalizeLanguage(string(s.Language))
 	s.FocusMinutes = normalizeMinutes(s.FocusMinutes, defaultFocusMinutes, maxFocusMinutes)
 	s.AlarmMinutes = normalizeMinutes(s.AlarmMinutes, defaultAlarmMinutes, maxAlarmMinutes)
+	s.PetCount = normalizePetCount(s.PetCount)
 	return s
 }
 
@@ -91,6 +95,7 @@ func loadSettings() {
 	focusMinutes = s.FocusMinutes
 	alarmMinutes = s.AlarmMinutes
 	startupWithWindows = s.StartupWithWindows
+	persistentPetCount = s.PetCount
 }
 
 func saveSettings() error {
@@ -99,5 +104,6 @@ func saveSettings() error {
 		FocusMinutes:       focusMinutes,
 		AlarmMinutes:       alarmMinutes,
 		StartupWithWindows: startupWithWindows,
+		PetCount:           persistentPetCount,
 	})
 }
