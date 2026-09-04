@@ -32,7 +32,7 @@ jobs:
           $patched = [regex]::Replace($source, $pattern, "AppVersion = `"$version`"")
           Set-Content core_windows.go -Value $patched -NoNewline -Encoding utf8
 
-      - name: Test core logic, localization, movement, and hanging
+      - name: Test core logic, localization, movement, hanging, and sprite decoding
         shell: pwsh
         run: go test ./...
 
@@ -41,6 +41,18 @@ jobs:
         run: |
           $version = (Get-Content VERSION -Raw).Trim()
           go build -trimpath -ldflags="-H=windowsgui -s -w" -o "Dorong-v$version.exe" .
+
+      - name: Smoke-test Dorong startup
+        shell: pwsh
+        run: |
+          $version = (Get-Content VERSION -Raw).Trim()
+          $exe = Join-Path $PWD "Dorong-v$version.exe"
+          $p = Start-Process -FilePath $exe -PassThru
+          Start-Sleep -Seconds 5
+          if ($p.HasExited) {
+            throw "Dorong exited during startup smoke test with code $($p.ExitCode)"
+          }
+          Stop-Process -Id $p.Id -Force
 
       - name: Ensure Inno Setup is available
         shell: pwsh
