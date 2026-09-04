@@ -51,3 +51,43 @@ func resolveWorkAreaLanding(nextX, nextY, petWidth, petHeight int32, area Screen
 	y, landed = resolveFloorLanding(nextY, petHeight, area.Bottom)
 	return x, y, landed
 }
+
+// landingProbeXs returns three foot-area probe points used to discover narrow
+// windows. Looking only under the sprite center can miss a window that is
+// visibly under one of Dorong's feet.
+func landingProbeXs(petX, petWidth int32) [3]int32 {
+	return [3]int32{
+		petX + petWidth/4,
+		petX + petWidth/2,
+		petX + (petWidth*3)/4,
+	}
+}
+
+// resolveWindowTopLanding checks whether Dorong crossed a candidate window's
+// top edge while moving downward and whether the central foot-contact region
+// overlaps that window. It returns the exact sprite Y needed to stand on top.
+func resolveWindowTopLanding(petX, oldBottom, newBottom, petWidth, petHeight int32, window ScreenRect) (landingY int32, landed bool) {
+	if newBottom <= oldBottom {
+		return 0, false
+	}
+
+	// A tiny tolerance absorbs integer rounding between timer ticks without
+	// allowing Dorong to snap onto a window that was already well above/below.
+	const aboveTolerance int32 = 3
+	const belowTolerance int32 = 4
+	if window.Top < oldBottom-aboveTolerance || window.Top > newBottom+belowTolerance {
+		return 0, false
+	}
+
+	inset := petWidth / 5
+	if inset < 16 {
+		inset = 16
+	}
+	feetLeft := petX + inset
+	feetRight := petX + petWidth - inset
+	if feetRight <= window.Left || feetLeft >= window.Right {
+		return 0, false
+	}
+
+	return window.Top - petHeight, true
+}
