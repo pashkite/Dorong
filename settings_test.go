@@ -16,9 +16,6 @@ func TestLoadSettingsDefaultsForMissingFile(t *testing.T) {
 
 func TestLoadSettingsBackfillsNewTimerFields(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "settings.json")
-	if err := os.WriteFile(path, []byte(`{"language":"en"}`), 0o644); err != nil {
-		t.Fatal(err)
-	}
 	data := []byte("{\"language\":\"en\"}")
 	if err := os.WriteFile(path, data, 0o644); err != nil {
 		t.Fatal(err)
