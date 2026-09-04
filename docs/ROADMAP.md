@@ -1,14 +1,17 @@
 # Dorong Roadmap
 
-## v0.5.2 — current
+## v0.5.x — current
 
 - Rename project and app to Dorong
 - Gravity after drag-and-drop
-- Respect the Windows work area when landing, including docked taskbars
-- Landing on ordinary application-window tops
+- Respect the Windows work area and docked taskbar
+- Accurate landing on ordinary application-window tops
+- Stable left/right walking on application windows, including x=0 targets and resized windows
 - Window-edge hanging behavior
 - Head-petting hit area
 - Cursor-following idle reaction
+- Korean / English runtime language selection with persistent preference
+- Korean and English README documentation
 - Expanded animation states: fall, hang, look-left, look-right
 
 ## Next
@@ -28,4 +31,5 @@
 - Multiple Dorong instances
 - Window climbing
 - Drag/throw velocity instead of drop-only gravity
+- More languages through additional localization tables
 - Optional AI assistant integration behind an explicit user setting
