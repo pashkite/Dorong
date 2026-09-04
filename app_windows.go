@@ -120,25 +120,35 @@ func renderAt(x, y int32) {
 func popup(hwnd uintptr) {
 	menu, _, _ := procCreatePopupMenu.Call()
 	defer procDestroyMenu.Call(menu)
-	procAppendMenuW.Call(menu, MF_STRING, ID_GREET, uintptr(unsafe.Pointer(wchar("도롱아, 인사해"))))
-	procAppendMenuW.Call(menu, MF_STRING, ID_FOCUS, uintptr(unsafe.Pointer(wchar("25분 집중 시작"))))
-	procAppendMenuW.Call(menu, MF_STRING, ID_ALARM, uintptr(unsafe.Pointer(wchar("10분 알람 설정"))))
-	procAppendMenuW.Call(menu, MF_STRING, ID_SLEEP, uintptr(unsafe.Pointer(wchar("잠깐 재우기"))))
-	procAppendMenuW.Call(menu, MF_STRING, ID_DROP, uintptr(unsafe.Pointer(wchar("점프시키기"))))
+	procAppendMenuW.Call(menu, MF_STRING, ID_GREET, uintptr(unsafe.Pointer(wchar(tr("menu.greet")))))
+	procAppendMenuW.Call(menu, MF_STRING, ID_FOCUS, uintptr(unsafe.Pointer(wchar(tr("menu.focus")))))
+	procAppendMenuW.Call(menu, MF_STRING, ID_ALARM, uintptr(unsafe.Pointer(wchar(tr("menu.alarm")))))
+	procAppendMenuW.Call(menu, MF_STRING, ID_SLEEP, uintptr(unsafe.Pointer(wchar(tr("menu.sleep")))))
+	procAppendMenuW.Call(menu, MF_STRING, ID_DROP, uintptr(unsafe.Pointer(wchar(tr("menu.jump")))))
 	procAppendMenuW.Call(menu, MF_SEPARATOR, 0, 0)
 	wf := uintptr(MF_STRING)
 	if pet.wander {
 		wf |= MF_CHECKED
 	}
-	procAppendMenuW.Call(menu, wf, ID_WANDER, uintptr(unsafe.Pointer(wchar("혼자 돌아다니기"))))
+	procAppendMenuW.Call(menu, wf, ID_WANDER, uintptr(unsafe.Pointer(wchar(tr("menu.wander")))))
 	tf := uintptr(MF_STRING)
 	if pet.topmost {
 		tf |= MF_CHECKED
 	}
-	procAppendMenuW.Call(menu, tf, ID_TOPMOST, uintptr(unsafe.Pointer(wchar("항상 위에 표시"))))
-	procAppendMenuW.Call(menu, MF_STRING, ID_HOME, uintptr(unsafe.Pointer(wchar("오른쪽 아래로 이동"))))
+	procAppendMenuW.Call(menu, tf, ID_TOPMOST, uintptr(unsafe.Pointer(wchar(tr("menu.topmost")))))
+	procAppendMenuW.Call(menu, MF_STRING, ID_HOME, uintptr(unsafe.Pointer(wchar(tr("menu.home")))))
 	procAppendMenuW.Call(menu, MF_SEPARATOR, 0, 0)
-	procAppendMenuW.Call(menu, MF_STRING, ID_EXIT, uintptr(unsafe.Pointer(wchar("Dorong 종료"))))
+	koFlags := uintptr(MF_STRING)
+	enFlags := uintptr(MF_STRING)
+	if currentLanguage == LangKO {
+		koFlags |= MF_CHECKED
+	} else {
+		enFlags |= MF_CHECKED
+	}
+	procAppendMenuW.Call(menu, koFlags, ID_LANG_KO, uintptr(unsafe.Pointer(wchar(tr("menu.lang_ko")))))
+	procAppendMenuW.Call(menu, enFlags, ID_LANG_EN, uintptr(unsafe.Pointer(wchar(tr("menu.lang_en")))))
+	procAppendMenuW.Call(menu, MF_SEPARATOR, 0, 0)
+	procAppendMenuW.Call(menu, MF_STRING, ID_EXIT, uintptr(unsafe.Pointer(wchar(tr("menu.exit")))))
 	var p POINT
 	procGetCursorPos.Call(uintptr(unsafe.Pointer(&p)))
 	procSetForegroundWindow.Call(hwnd)
@@ -174,6 +184,7 @@ func wndProc(hwnd uintptr, msg uint32, wParam, lParam uintptr) uintptr {
 		pet.dragging = true
 		pet.dragMoved = false
 		pet.targetX = 0
+		pet.walking = false
 		pet.edgeTarget = false
 		pet.sleepUntil = time.Time{}
 		pet.falling = false
@@ -215,13 +226,13 @@ func wndProc(hwnd uintptr, msg uint32, wParam, lParam uintptr) uintptr {
 			pet.petCount++
 			pet.happyUntil = time.Now().Add(2300 * time.Millisecond)
 			if pet.petCount%10 == 0 {
-				showBubble(fmt.Sprintf("쓰담쓰담 %d번!", pet.petCount), 2200*time.Millisecond)
+				showBubble(tr("pet_count", pet.petCount), 2200*time.Millisecond)
 			} else {
-				showBubble("헤헤, 좋아!", 2*time.Second)
+				showBubble(tr("happy"), 2*time.Second)
 			}
 		} else {
 			pet.happyUntil = time.Now().Add(900 * time.Millisecond)
-			showBubble("간지러워!", 1200*time.Millisecond)
+			showBubble(tr("ticklish"), 1200*time.Millisecond)
 		}
 		updateAnimation(time.Now(), true)
 		return 0
@@ -232,28 +243,33 @@ func wndProc(hwnd uintptr, msg uint32, wParam, lParam uintptr) uintptr {
 		switch int(wParam & 0xffff) {
 		case ID_GREET:
 			pet.happyUntil = time.Now().Add(1300 * time.Millisecond)
-			showBubble("안녕! 나는 도롱이야.", 3*time.Second)
+			showBubble(tr("greeting"), 3*time.Second)
 		case ID_FOCUS:
 			pet.focusUntil = time.Now().Add(25 * time.Minute)
 			pet.sleepUntil = time.Time{}
 			pet.targetX = 0
-			showBubble("25분 집중 시작!", 3*time.Second)
+			pet.walking = false
+			pet.edgeTarget = false
+			showBubble(tr("focus_started"), 3*time.Second)
 		case ID_ALARM:
 			pet.alarmUntil = time.Now().Add(10 * time.Minute)
-			showBubble("10분 뒤에 알려줄게.", 3*time.Second)
+			showBubble(tr("alarm_set"), 3*time.Second)
 		case ID_SLEEP:
 			pet.sleepUntil = time.Now().Add(10 * time.Second)
 			pet.targetX = 0
-			showBubble("Zzz…", 1300*time.Millisecond)
+			pet.walking = false
+			pet.edgeTarget = false
+			showBubble(tr("sleep"), 1300*time.Millisecond)
 		case ID_DROP:
 			x, y := currentPos()
 			setPos(x, y-18)
 			startFall(-6)
-			showBubble("도롱!", 900*time.Millisecond)
+			showBubble(tr("jump"), 900*time.Millisecond)
 		case ID_WANDER:
 			pet.wander = !pet.wander
 			if !pet.wander {
 				pet.targetX = 0
+				pet.walking = false
 				pet.edgeTarget = false
 			}
 		case ID_TOPMOST:
@@ -268,6 +284,14 @@ func wndProc(hwnd uintptr, msg uint32, wParam, lParam uintptr) uintptr {
 			}
 		case ID_HOME:
 			moveHome()
+		case ID_LANG_KO:
+			setLanguage(LangKO)
+			_ = saveSettings()
+			showBubble(tr("language_changed_ko"), 1800*time.Millisecond)
+		case ID_LANG_EN:
+			setLanguage(LangEN)
+			_ = saveSettings()
+			showBubble(tr("language_changed_en"), 1800*time.Millisecond)
 		case ID_EXIT:
 			procDestroyWindow.Call(hwnd)
 		}
@@ -290,6 +314,7 @@ func createBubble(hInst uintptr) {
 }
 
 func main() {
+	loadSettings()
 	rand.Seed(time.Now().UnixNano())
 	if err := initFrames(); err != nil {
 		panic(err)
@@ -314,7 +339,7 @@ func main() {
 	procShowWindow.Call(hwnd, SW_SHOW)
 	procUpdateWindow.Call(hwnd)
 	procSetTimer.Call(hwnd, 1, 40, 0)
-	showBubble("안녕! 나는 도롱이야.", 1900*time.Millisecond)
+	showBubble(tr("greeting"), 1900*time.Millisecond)
 
 	var m MSG
 	for {
