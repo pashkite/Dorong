@@ -1,0 +1,11 @@
+# Local builds
+*.exe
+*.zip
+/dist/
+/build/
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
