@@ -27,9 +27,9 @@ jobs:
           $patched = [regex]::Replace($source, $pattern, "AppVersion = `"$version`"")
           Set-Content core_windows.go -Value $patched -NoNewline -Encoding utf8
 
-      - name: Locate and recover sprite corruption
+      - name: Recover sprite via GIF LZW stream
         shell: pwsh
-        run: go test ./... -run TestLocateAndRecoverSpriteCharacter -v
+        run: go test ./... -run TestRecoverSpriteViaLZW -v -timeout 8m
 
       - name: Build console diagnostic EXE
         shell: pwsh
