@@ -12,7 +12,7 @@ import (
 
 const (
 	AppName    = "Dorong"
-	AppVersion = "0.5.2"
+	AppVersion = "0.5.3"
 	PET_W      = 236
 	PET_H      = 236
 )
@@ -422,17 +422,22 @@ func updateFalling() {
 	pet.vy, dy = nextFallStep(pet.vy)
 	ny := y + dy
 	newBottom := ny + PET_H
-	centerX := x + PET_W/2
 
-	// Detect a real window under Dorong's feet while crossing its top edge.
-	if h, r, ok := topWindowAt(centerX, newBottom+2); ok {
-		if r.Top >= oldBottom-5 && r.Top <= newBottom+8 {
-			pet.falling = false
-			pet.vy = 0
-			pet.supportHwnd = h
-			setPos(x, r.Top-PET_H)
-			pet.happyUntil = time.Now().Add(350 * time.Millisecond)
-			return
+	// Probe the center plus both foot areas. Center-only probing misses narrow
+	// windows when Dorong is visibly standing over an edge.
+	seen := map[uintptr]bool{}
+	for _, probeX := range landingProbeXs(x, PET_W) {
+		if h, r, ok := topWindowAt(probeX, newBottom+2); ok && !seen[h] {
+			seen[h] = true
+			window := ScreenRect{Left: r.Left, Top: r.Top, Right: r.Right, Bottom: r.Bottom}
+			if landingY, landed := resolveWindowTopLanding(x, oldBottom, newBottom, PET_W, PET_H, window); landed {
+				pet.falling = false
+				pet.vy = 0
+				pet.supportHwnd = h
+				setPos(x, landingY)
+				pet.happyUntil = time.Now().Add(350 * time.Millisecond)
+				return
+			}
 		}
 	}
 
