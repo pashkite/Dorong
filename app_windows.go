@@ -137,6 +137,7 @@ func popup(hwnd uintptr) {
 	}
 	procAppendMenuW.Call(menu, tf, ID_TOPMOST, uintptr(unsafe.Pointer(wchar(tr("menu.topmost")))))
 	procAppendMenuW.Call(menu, MF_STRING, ID_HOME, uintptr(unsafe.Pointer(wchar(tr("menu.home")))))
+	procAppendMenuW.Call(menu, MF_STRING, ID_AFFECTION, uintptr(unsafe.Pointer(wchar(tr("menu.affection")))))
 	procAppendMenuW.Call(menu, MF_SEPARATOR, 0, 0)
 	koFlags := uintptr(MF_STRING)
 	enFlags := uintptr(MF_STRING)
@@ -230,13 +231,7 @@ func wndProc(hwnd uintptr, msg uint32, wParam, lParam uintptr) uintptr {
 		return 0
 	case WM_LBUTTONDBLCLK:
 		if isHeadPat() {
-			pet.petCount++
-			pet.happyUntil = time.Now().Add(2300 * time.Millisecond)
-			if pet.petCount%10 == 0 {
-				showBubble(tr("pet_count", pet.petCount), 2200*time.Millisecond)
-			} else {
-				showBubble(tr("happy"), 2*time.Second)
-			}
+			handleHeadPat()
 		} else {
 			pet.happyUntil = time.Now().Add(900 * time.Millisecond)
 			showBubble(tr("ticklish"), 1200*time.Millisecond)
@@ -307,6 +302,8 @@ func wndProc(hwnd uintptr, msg uint32, wParam, lParam uintptr) uintptr {
 			setLanguage(LangEN)
 			_ = saveSettings()
 			showBubble(tr("language_changed_en"), 1800*time.Millisecond)
+		case ID_AFFECTION:
+			showAffectionStatus()
 		case ID_SETTINGS:
 			showSettingsWindow()
 		case ID_EXIT:
@@ -332,6 +329,7 @@ func createBubble(hInst uintptr) {
 
 func main() {
 	loadSettings()
+	syncAffectionFromSettings()
 	_ = setStartupEnabled(startupWithWindows)
 	rand.Seed(time.Now().UnixNano())
 	if err := initFrames(); err != nil {

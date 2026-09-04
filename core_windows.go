@@ -11,7 +11,7 @@ import (
 
 const (
 	AppName    = "Dorong"
-	AppVersion = "0.5.9"
+	AppVersion = "0.6.1"
 	PET_W      = 236
 	PET_H      = 236
 )
