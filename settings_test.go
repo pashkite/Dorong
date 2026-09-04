@@ -14,14 +14,14 @@ func TestLoadSettingsDefaultsForMissingFile(t *testing.T) {
 	}
 }
 
-func TestLoadSettingsBackfillsNewTimerFields(t *testing.T) {
+func TestLoadSettingsBackfillsNewFields(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "settings.json")
 	data := []byte("{\"language\":\"en\"}")
 	if err := os.WriteFile(path, data, 0o644); err != nil {
 		t.Fatal(err)
 	}
 	got := loadSettingsFrom(path)
-	if got.Language != LangEN || got.FocusMinutes != defaultFocusMinutes || got.AlarmMinutes != defaultAlarmMinutes {
+	if got.Language != LangEN || got.FocusMinutes != defaultFocusMinutes || got.AlarmMinutes != defaultAlarmMinutes || got.PetCount != 0 {
 		t.Fatalf("unexpected backfill result: %+v", got)
 	}
 }
@@ -33,12 +33,24 @@ func TestSettingsRoundTripAndClamp(t *testing.T) {
 		FocusMinutes:       999,
 		AlarmMinutes:       9999,
 		StartupWithWindows: true,
+		PetCount:           87,
 	}
 	if err := saveSettingsTo(path, in); err != nil {
 		t.Fatal(err)
 	}
 	got := loadSettingsFrom(path)
-	if got.Language != LangEN || got.FocusMinutes != maxFocusMinutes || got.AlarmMinutes != maxAlarmMinutes || !got.StartupWithWindows {
+	if got.Language != LangEN || got.FocusMinutes != maxFocusMinutes || got.AlarmMinutes != maxAlarmMinutes || !got.StartupWithWindows || got.PetCount != 87 {
 		t.Fatalf("unexpected round trip: %+v", got)
+	}
+}
+
+func TestSettingsClampNegativePetCount(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "settings.json")
+	if err := saveSettingsTo(path, appSettings{PetCount: -100}); err != nil {
+		t.Fatal(err)
+	}
+	got := loadSettingsFrom(path)
+	if got.PetCount != 0 {
+		t.Fatalf("pet count = %d, want 0", got.PetCount)
 	}
 }

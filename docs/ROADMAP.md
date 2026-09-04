@@ -5,6 +5,8 @@
 - v0.6.0: configurable focus/alarm duration UI with persistent settings
 - v0.6.0: native Windows settings window and system-tray integration
 - v0.6.0: optional startup-with-Windows registration
+- v0.6.1: persistent lifetime head-petting counter
+- v0.6.1: five affection stages with stage-specific reactions and status menu
 
 ## v0.5.x — completed
 
@@ -28,7 +30,6 @@
 
 ## Next
 
-- Persistent affection / interaction counter
 - Additional hand-drawn animation frames for climbing
 - Optional skin pack loading from a folder
 
