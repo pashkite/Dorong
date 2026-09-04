@@ -1,0 +1,47 @@
+name: Prepare Dorong v0.6.0
+
+on:
+  push:
+    branches:
+      - 'v0.6.0-settings'
+    paths:
+      - '.github/workflows/prepare-v060.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  prepare:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: 'v0.6.0-settings'
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23.x'
+
+      - name: Apply v0.6.0 patches
+        run: python scripts/patch_v060.py
+
+      - name: Format
+        run: gofmt -w app_windows.go localization.go settings.go settings_test.go startup_windows.go tray_windows.go settings_window_windows.go
+
+      - name: Test
+        run: go test ./...
+
+      - name: Build
+        run: go build -trimpath -ldflags="-H=windowsgui -s -w" -o Dorong-v0.6.0.exe .
+
+      - name: Commit prepared branch
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/prepare-v060.yml scripts/patch_v060.py
+          git add app_windows.go localization.go settings.go settings_test.go startup_windows.go tray_windows.go settings_window_windows.go VERSION README.md docs/ROADMAP.md
+          git commit -m "feat: add settings, tray, and startup controls for v0.6.0"
+          git push origin HEAD:v0.6.0-settings
