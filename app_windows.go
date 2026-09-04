@@ -121,8 +121,8 @@ func popup(hwnd uintptr) {
 	menu, _, _ := procCreatePopupMenu.Call()
 	defer procDestroyMenu.Call(menu)
 	procAppendMenuW.Call(menu, MF_STRING, ID_GREET, uintptr(unsafe.Pointer(wchar(tr("menu.greet")))))
-	procAppendMenuW.Call(menu, MF_STRING, ID_FOCUS, uintptr(unsafe.Pointer(wchar(tr("menu.focus")))))
-	procAppendMenuW.Call(menu, MF_STRING, ID_ALARM, uintptr(unsafe.Pointer(wchar(tr("menu.alarm")))))
+	procAppendMenuW.Call(menu, MF_STRING, ID_FOCUS, uintptr(unsafe.Pointer(wchar(tr("menu.focus", focusMinutes)))))
+	procAppendMenuW.Call(menu, MF_STRING, ID_ALARM, uintptr(unsafe.Pointer(wchar(tr("menu.alarm", alarmMinutes)))))
 	procAppendMenuW.Call(menu, MF_STRING, ID_SLEEP, uintptr(unsafe.Pointer(wchar(tr("menu.sleep")))))
 	procAppendMenuW.Call(menu, MF_STRING, ID_DROP, uintptr(unsafe.Pointer(wchar(tr("menu.jump")))))
 	procAppendMenuW.Call(menu, MF_SEPARATOR, 0, 0)
@@ -148,6 +148,7 @@ func popup(hwnd uintptr) {
 	procAppendMenuW.Call(menu, koFlags, ID_LANG_KO, uintptr(unsafe.Pointer(wchar(tr("menu.lang_ko")))))
 	procAppendMenuW.Call(menu, enFlags, ID_LANG_EN, uintptr(unsafe.Pointer(wchar(tr("menu.lang_en")))))
 	procAppendMenuW.Call(menu, MF_SEPARATOR, 0, 0)
+	procAppendMenuW.Call(menu, MF_STRING, ID_SETTINGS, uintptr(unsafe.Pointer(wchar(tr("menu.settings")))))
 	procAppendMenuW.Call(menu, MF_STRING, ID_EXIT, uintptr(unsafe.Pointer(wchar(tr("menu.exit")))))
 	var p POINT
 	procGetCursorPos.Call(uintptr(unsafe.Pointer(&p)))
@@ -167,6 +168,7 @@ func isHeadPat() bool {
 func wndProc(hwnd uintptr, msg uint32, wParam, lParam uintptr) uintptr {
 	switch msg {
 	case WM_DESTROY:
+		removeTrayIcon()
 		procKillTimer.Call(hwnd, 1)
 		procKillTimer.Call(hwnd, 2)
 		if pet.bubbleFont != 0 {
@@ -244,21 +246,29 @@ func wndProc(hwnd uintptr, msg uint32, wParam, lParam uintptr) uintptr {
 	case WM_RBUTTONUP:
 		popup(hwnd)
 		return 0
+	case wmTrayIcon:
+		event := uint32(lParam & 0xffff)
+		if event == WM_RBUTTONUP {
+			popup(hwnd)
+		} else if event == WM_LBUTTONDBLCLK {
+			showSettingsWindow()
+		}
+		return 0
 	case WM_COMMAND:
 		switch int(wParam & 0xffff) {
 		case ID_GREET:
 			pet.happyUntil = time.Now().Add(1300 * time.Millisecond)
 			showBubble(tr("greeting"), 3*time.Second)
 		case ID_FOCUS:
-			pet.focusUntil = time.Now().Add(25 * time.Minute)
+			pet.focusUntil = time.Now().Add(time.Duration(focusMinutes) * time.Minute)
 			pet.sleepUntil = time.Time{}
 			pet.targetX = 0
 			pet.walking = false
 			pet.edgeTarget = false
-			showBubble(tr("focus_started"), 3*time.Second)
+			showBubble(tr("focus_started", focusMinutes), 3*time.Second)
 		case ID_ALARM:
-			pet.alarmUntil = time.Now().Add(10 * time.Minute)
-			showBubble(tr("alarm_set"), 3*time.Second)
+			pet.alarmUntil = time.Now().Add(time.Duration(alarmMinutes) * time.Minute)
+			showBubble(tr("alarm_set", alarmMinutes), 3*time.Second)
 		case ID_SLEEP:
 			pet.sleepUntil = time.Now().Add(10 * time.Second)
 			pet.targetX = 0
@@ -297,6 +307,8 @@ func wndProc(hwnd uintptr, msg uint32, wParam, lParam uintptr) uintptr {
 			setLanguage(LangEN)
 			_ = saveSettings()
 			showBubble(tr("language_changed_en"), 1800*time.Millisecond)
+		case ID_SETTINGS:
+			showSettingsWindow()
 		case ID_EXIT:
 			procDestroyWindow.Call(hwnd)
 		}
@@ -320,6 +332,7 @@ func createBubble(hInst uintptr) {
 
 func main() {
 	loadSettings()
+	_ = setStartupEnabled(startupWithWindows)
 	rand.Seed(time.Now().UnixNano())
 	if err := initFrames(); err != nil {
 		panic(err)
@@ -343,6 +356,7 @@ func main() {
 	renderAt(x, y)
 	procShowWindow.Call(hwnd, SW_SHOW)
 	procUpdateWindow.Call(hwnd)
+	addTrayIcon()
 	procSetTimer.Call(hwnd, 1, 40, 0)
 	procSetTimer.Call(hwnd, 2, 16, 0)
 	showBubble(tr("greeting"), 1900*time.Millisecond)
