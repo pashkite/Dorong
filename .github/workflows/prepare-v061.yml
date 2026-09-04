@@ -1,0 +1,50 @@
+name: Prepare Dorong v0.6.1
+
+on:
+  push:
+    branches:
+      - 'v0.6.1-affection'
+    paths:
+      - '.github/workflows/prepare-v061.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  prepare:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: 'v0.6.1-affection'
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23.x'
+
+      - name: Apply v0.6.1 patches
+        run: python scripts/prepare_v061.py
+
+      - name: Format
+        shell: pwsh
+        run: |
+          gofmt -w affection.go affection_test.go affection_windows.go settings.go settings_test.go localization.go app_windows.go core_windows.go
+
+      - name: Test
+        run: go test ./...
+
+      - name: Build
+        run: go build -trimpath -ldflags="-H=windowsgui -s -w" -o Dorong-v0.6.1.exe .
+
+      - name: Commit prepared branch
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          rm -f Dorong-v0.6.1.exe
+          git rm .github/workflows/prepare-v061.yml scripts/prepare_v061.py
+          git add -A
+          git commit -m "Dorong v0.6.1: persistent affection and petting history"
+          git push origin HEAD:v0.6.1-affection
