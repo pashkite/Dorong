@@ -1,0 +1,48 @@
+name: Diagnose Dorong startup
+
+on:
+  push:
+    branches: [v0.6.1-startup-diagnosis]
+  workflow_dispatch:
+
+jobs:
+  diagnose:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23.x'
+
+      - name: Apply VERSION
+        shell: pwsh
+        run: |
+          $version = (Get-Content VERSION -Raw).Trim()
+          $source = Get-Content core_windows.go -Raw
+          $pattern = 'AppVersion\s*=\s*"[^"]+"'
+          if ($source -notmatch $pattern) { throw 'AppVersion marker not found' }
+          $patched = [regex]::Replace($source, $pattern, "AppVersion = `"$version`"")
+          Set-Content core_windows.go -Value $patched -NoNewline -Encoding utf8
+
+      - name: Build console diagnostic EXE
+        shell: pwsh
+        run: go build -trimpath -o Dorong-diagnostic.exe .
+
+      - name: Launch and verify process stays alive
+        shell: pwsh
+        run: |
+          $stdout = Join-Path $PWD 'dorong-stdout.txt'
+          $stderr = Join-Path $PWD 'dorong-stderr.txt'
+          $p = Start-Process -FilePath (Join-Path $PWD 'Dorong-diagnostic.exe') -RedirectStandardOutput $stdout -RedirectStandardError $stderr -PassThru
+          Start-Sleep -Seconds 5
+          if ($p.HasExited) {
+            Write-Host "Dorong exited early with code $($p.ExitCode)"
+            if (Test-Path $stdout) { Write-Host '--- stdout ---'; Get-Content $stdout -Raw }
+            if (Test-Path $stderr) { Write-Host '--- stderr ---'; Get-Content $stderr -Raw }
+            exit 1
+          }
+          Write-Host "Dorong remained running for 5 seconds (PID $($p.Id))."
+          Stop-Process -Id $p.Id -Force
