@@ -1,0 +1,282 @@
+from pathlib import Path
+import re
+
+
+def require_replace(text: str, old: str, new: str, label: str, count: int = 1) -> str:
+    actual = text.count(old)
+    if actual != count:
+        raise SystemExit(f"{label}: expected {count} match(es), found {actual}")
+    return text.replace(old, new, count)
+
+
+core_path = Path("core_windows.go")
+core = core_path.read_text(encoding="utf-8")
+
+old_work_area = """func workArea() RECT {
+\tvar r RECT
+\tok, _, _ := procSystemParametersInfoW.Call(SPI_GETWORKAREA, 0, uintptr(unsafe.Pointer(&r)), 0)
+\tif ok != 0 && r.Right > r.Left && r.Bottom > r.Top {
+\t\treturn r
+\t}
+\tsw, _, _ := procGetSystemMetrics.Call(0)
+\tsh, _, _ := procGetSystemMetrics.Call(1)
+\treturn RECT{0, 0, int32(sw), int32(sh)}
+}
+"""
+core = require_replace(
+    core,
+    old_work_area,
+    """func workArea() RECT {
+\treturn workAreaForPet()
+}
+""",
+    "replace primary-only workArea",
+)
+
+core = require_replace(
+    core,
+    'AppVersion = "0.5.5"',
+    'AppVersion = "0.5.8"',
+    "update AppVersion",
+)
+
+old_support = """func supportXRange() (int32, int32) {
+\twa := workArea()
+\tif pet.supportHwnd == 0 {
+\t\treturn wa.Left, wa.Right - PET_W
+\t}
+\tr, ok := validSupportWindow(pet.supportHwnd)
+"""
+new_support = """func supportXRange() (int32, int32) {
+\twa := workArea()
+\tif pet.supportHwnd == 0 {
+\t\treturn wa.Left, wa.Right - PET_W
+\t}
+\twa = workAreaForWindow(pet.supportHwnd)
+\tr, ok := validSupportWindow(pet.supportHwnd)
+"""
+core = require_replace(core, old_support, new_support, "support monitor work area")
+
+sync_start = core.index("func syncHangPose() bool {")
+sync_end = core.index("\nfunc updateHanging", sync_start)
+sync = core[sync_start:sync_end]
+sync = require_replace(
+    sync,
+    "\twa := workArea()\n",
+    "\twa := workAreaForWindow(pet.supportHwnd)\n",
+    "hang monitor work area",
+)
+core = core[:sync_start] + sync + core[sync_end:]
+
+fall_start = core.index("func updateFalling() {")
+fall_end = core.index("\nfunc updateCursorLook", fall_start)
+fall = core[fall_start:fall_end]
+fall = require_replace(
+    fall,
+    "\twa := workArea()\n",
+    "\twa := workAreaForPoint(x+PET_W/2, newBottom)\n",
+    "fall monitor work area",
+)
+core = core[:fall_start] + fall + core[fall_end:]
+core_path.write_text(core, encoding="utf-8")
+
+app_path = Path("app_windows.go")
+app = app_path.read_text(encoding="utf-8")
+app = require_replace(
+    app,
+    "\t\t\twa := workArea()\n\t\t\tnx := clamp32(p.X-pet.dragDX, wa.Left-PET_W/2, wa.Right-PET_W/2)",
+    "\t\t\twa := workAreaForPoint(p.X, p.Y)\n\t\t\tnx := clamp32(p.X-pet.dragDX, wa.Left-PET_W/2, wa.Right-PET_W/2)",
+    "drag monitor work area",
+)
+app_path.write_text(app, encoding="utf-8")
+
+monitor = r'''//go:build windows
+
+package main
+
+import "unsafe"
+
+const monitorDefaultToNearest = 0x00000002
+
+var (
+	procMonitorFromPoint  = user32.NewProc("MonitorFromPoint")
+	procMonitorFromWindow = user32.NewProc("MonitorFromWindow")
+	procGetMonitorInfoW   = user32.NewProc("GetMonitorInfoW")
+)
+
+type MONITORINFO struct {
+	CbSize    uint32
+	RcMonitor RECT
+	RcWork    RECT
+	DwFlags   uint32
+}
+
+// primaryWorkArea preserves the old single-monitor fallback for startup and
+// for the unlikely case where the monitor APIs cannot resolve a display.
+func primaryWorkArea() RECT {
+	var r RECT
+	ok, _, _ := procSystemParametersInfoW.Call(SPI_GETWORKAREA, 0, uintptr(unsafe.Pointer(&r)), 0)
+	if ok != 0 && r.Right > r.Left && r.Bottom > r.Top {
+		return r
+	}
+	sw, _, _ := procGetSystemMetrics.Call(0)
+	sh, _, _ := procGetSystemMetrics.Call(1)
+	return RECT{0, 0, int32(sw), int32(sh)}
+}
+
+func monitorWorkArea(hMonitor uintptr) (RECT, bool) {
+	if hMonitor == 0 {
+		return RECT{}, false
+	}
+	mi := MONITORINFO{CbSize: uint32(unsafe.Sizeof(MONITORINFO{}))}
+	ok, _, _ := procGetMonitorInfoW.Call(hMonitor, uintptr(unsafe.Pointer(&mi)))
+	if ok == 0 || mi.RcWork.Right <= mi.RcWork.Left || mi.RcWork.Bottom <= mi.RcWork.Top {
+		return RECT{}, false
+	}
+	return mi.RcWork, true
+}
+
+// workAreaForPoint returns the usable area of the monitor nearest a virtual-
+// screen coordinate. Negative X/Y coordinates are valid on Windows when a
+// monitor is arranged to the left or above the primary monitor.
+func workAreaForPoint(x, y int32) RECT {
+	hMonitor, _, _ := procMonitorFromPoint.Call(packPoint(x, y), monitorDefaultToNearest)
+	if r, ok := monitorWorkArea(hMonitor); ok {
+		return r
+	}
+	return primaryWorkArea()
+}
+
+func workAreaForWindow(hwnd uintptr) RECT {
+	if hwnd == 0 {
+		return primaryWorkArea()
+	}
+	hMonitor, _, _ := procMonitorFromWindow.Call(hwnd, monitorDefaultToNearest)
+	if r, ok := monitorWorkArea(hMonitor); ok {
+		return r
+	}
+	return primaryWorkArea()
+}
+
+func workAreaForPet() RECT {
+	if pet.hwnd != 0 {
+		return workAreaForWindow(pet.hwnd)
+	}
+	return primaryWorkArea()
+}
+'''
+Path("monitor_windows.go").write_text(monitor, encoding="utf-8")
+
+Path("VERSION").write_text("0.5.8\n", encoding="utf-8")
+
+roadmap_path = Path("docs/ROADMAP.md")
+roadmap = roadmap_path.read_text(encoding="utf-8")
+roadmap = require_replace(
+    roadmap,
+    "- v0.5.7: dedicated hanging and falling sprite frames with hang → fall transition\n",
+    "- v0.5.7: dedicated hanging and falling sprite frames with hang → fall transition\n"
+    "- v0.5.8: per-monitor Windows work-area and taskbar support across the virtual desktop\n"
+    "- v0.5.8: cross-monitor drag, landing, window walking, hanging, and speech-bubble placement\n",
+    "roadmap current version",
+)
+roadmap = require_replace(
+    roadmap,
+    "- Multi-monitor work-area support\n",
+    "",
+    "remove completed roadmap item",
+)
+roadmap_path.write_text(roadmap, encoding="utf-8")
+
+readme_path = Path("README.md")
+readme = readme_path.read_text(encoding="utf-8")
+readme = readme.replace("v0.5.7", "v0.5.8")
+
+sections = [
+    (
+        "### v0.5.8 변경 사항",
+        "### 주요 기능",
+        """### v0.5.8 변경 사항
+
+- 여러 모니터의 개별 Windows 작업 영역과 작업표시줄 위치 인식
+- 주 모니터뿐 아니라 왼쪽/오른쪽/위쪽에 배치된 보조 모니터로 드래그 이동 지원
+- 음수 가상 화면 좌표를 포함해 현재 모니터의 바닥으로 자연스럽게 낙하 및 착지
+- 창 위 걷기와 창 가장자리 매달림이 해당 창이 있는 모니터의 작업 영역을 기준으로 동작
+- 말풍선이 도롱이 있는 모니터 안에서 벗어나지 않도록 위치 보정
+- v0.5.7의 캐릭터 스프라이트와 매달림 → 낙하 애니메이션 유지
+
+""",
+    ),
+    (
+        "### What's new in v0.5.8",
+        "### Features",
+        """### What's new in v0.5.8
+
+- Added per-monitor Windows work-area and taskbar awareness
+- Dorong can now be dragged between monitors arranged left, right, or above the primary display
+- Falling resolves against the current monitor floor, including negative virtual-screen coordinates
+- Window walking and edge hanging use the work area of the monitor containing the support window
+- Speech bubbles stay inside the monitor where Dorong is currently located
+- Preserved the v0.5.7 character sprites and hanging → falling animation flow
+
+""",
+    ),
+    (
+        "### v0.5.8 の変更点",
+        "### 主な機能",
+        """### v0.5.8 の変更点
+
+- モニターごとの Windows 作業領域とタスクバー位置を認識
+- プライマリ画面の左・右・上に配置したサブモニターへドラッグ移動可能
+- 負の仮想画面座標を含め、現在のモニター下端へ自然に落下・着地
+- ウィンドウ上の歩行と端へのぶら下がりは、そのウィンドウがあるモニターの作業領域を使用
+- 吹き出しが Dorong のいるモニター外へはみ出さないよう補正
+- v0.5.7 のキャラクタースプライトとぶら下がり → 落下アニメーションを維持
+
+""",
+    ),
+    (
+        "### v0.5.8 更新",
+        "### 主要功能",
+        """### v0.5.8 更新
+
+- 支持识别每台显示器各自的 Windows 工作区域与任务栏位置
+- Dorong 可拖动到主显示器左侧、右侧或上方的副显示器
+- 支持负数虚拟桌面坐标，并会落到当前显示器的可用底部
+- 窗口顶部行走和边缘悬挂会以该窗口所在显示器的工作区域为准
+- 气泡会限制在 Dorong 当前所在的显示器范围内
+- 保留 v0.5.7 的角色精灵与悬挂 → 下落动画衔接
+
+""",
+    ),
+]
+for start, end, replacement in sections:
+    pattern = re.compile(re.escape(start) + r".*?(?=" + re.escape(end) + r")", re.S)
+    readme, n = pattern.subn(replacement, readme, count=1)
+    if n != 1:
+        raise SystemExit(f"README section not found: {start}")
+
+readme = require_replace(
+    readme,
+    "- Windows 작업 영역과 작업표시줄 인식\n",
+    "- 여러 모니터의 Windows 작업 영역과 작업표시줄 인식\n",
+    "README Korean feature",
+)
+readme = require_replace(
+    readme,
+    "- Windows work-area and taskbar awareness\n",
+    "- Per-monitor Windows work-area and taskbar awareness\n",
+    "README English feature",
+)
+readme = require_replace(
+    readme,
+    "- Windows の作業領域とタスクバーを認識\n",
+    "- 複数モニターごとの Windows 作業領域とタスクバーを認識\n",
+    "README Japanese feature",
+)
+readme = require_replace(
+    readme,
+    "- 识别 Windows 工作区域和任务栏\n",
+    "- 识别多显示器各自的 Windows 工作区域和任务栏\n",
+    "README Chinese feature",
+)
+readme_path.write_text(readme, encoding="utf-8")
