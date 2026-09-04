@@ -1,9 +1,11 @@
 # Dorong
 
+**English** | [한국어](README.ko.md)
+
 **Dorong** is a tiny personal Windows desktop pet written in Go and the Win32 API.
 It runs as a standalone Windows executable and does not require Python, .NET, or any separate runtime installation.
 
-> Current version: **v0.5.3**
+> Current version: **v0.5.4**
 
 ## Features
 
@@ -12,7 +14,8 @@ It runs as a standalone Windows executable and does not require Python, .NET, or
 - Release after dragging to apply gravity
 - Respect the Windows work area so Dorong lands above a docked taskbar
 - Land accurately on ordinary application-window tops, including narrow edges under either foot
-- Walk along an application window and occasionally hang from its edge
+- Walk left and right on application windows while adapting to moved or resized support windows
+- Occasionally hang from an application-window edge
 - Double-click the head area to pet Dorong
 - Idle reaction that looks toward the mouse cursor
 - Idle / walk / sleep / happy / held / focus / fall / hang animation states
@@ -20,6 +23,8 @@ It runs as a standalone Windows executable and does not require Python, .NET, or
 - 25-minute focus timer
 - 10-minute alarm
 - Always-on-top toggle
+- **Korean / English language selection**
+- Language preference persists across restarts
 - Standalone 64-bit Windows executable
 - No network connection or account required
 
@@ -31,6 +36,11 @@ It runs as a standalone Windows executable and does not require Python, .NET, or
 | Release after dragging | Drop Dorong; gravity is applied |
 | Double-click head | Pet Dorong |
 | Right-click | Open interaction menu |
+
+## Language
+
+Right-click Dorong and choose either `한국어` or `English` near the bottom of the menu.
+Menus, speech bubbles, focus/alarm messages, and system dialogs immediately use the selected language. The preference is saved in the user's Windows config directory under `Dorong/settings.json`.
 
 ## Run
 
@@ -58,15 +68,15 @@ GOOS=windows GOARCH=amd64 go build -ldflags='-H=windowsgui -s -w' -o Dorong.exe 
 Dorong/
 ├─ app_windows.go
 ├─ core_windows.go
+├─ localization.go
+├─ settings.go
+├─ movement.go
+├─ physics.go
+├─ *_test.go
 ├─ sprite_data_windows.go
 ├─ sprite_data_0_windows.go … sprite_data_7_windows.go
 ├─ go.mod
 ├─ assets/
-│  ├─ spritesheet*.gif     # source/derived animation sheets
-│  ├─ preview.gif
-│  ├─ animation_preview.gif
-│  ├─ contact_sheet.png / .jpg
-│  └─ icon.png
 ├─ .github/workflows/
 │  └─ build.yml
 └─ docs/
