@@ -32,9 +32,29 @@ jobs:
           $patched = [regex]::Replace($source, $pattern, "AppVersion = `"$version`"")
           Set-Content core_windows.go -Value $patched -NoNewline -Encoding utf8
 
-      - name: Test core logic, localization, movement, and hanging
+      - name: Test core logic, localization, movement, hanging, and sprites
         shell: pwsh
         run: go test ./...
+
+      - name: Build startup-smoke EXE
+        shell: pwsh
+        run: go build -trimpath -o Dorong-startup-smoke.exe .
+
+      - name: Verify Dorong actually stays running
+        shell: pwsh
+        run: |
+          $stdout = Join-Path $PWD 'dorong-smoke-stdout.txt'
+          $stderr = Join-Path $PWD 'dorong-smoke-stderr.txt'
+          $p = Start-Process -FilePath (Join-Path $PWD 'Dorong-startup-smoke.exe') -RedirectStandardOutput $stdout -RedirectStandardError $stderr -PassThru
+          Start-Sleep -Seconds 8
+          if ($p.HasExited) {
+            Write-Host "Dorong exited during startup smoke test with code $($p.ExitCode)"
+            if (Test-Path $stdout) { Write-Host '--- stdout ---'; Get-Content $stdout -Raw }
+            if (Test-Path $stderr) { Write-Host '--- stderr ---'; Get-Content $stderr -Raw }
+            exit 1
+          }
+          Write-Host "Dorong remained running for 8 seconds (PID $($p.Id))."
+          Stop-Process -Id $p.Id -Force
 
       - name: Build versioned Dorong EXE
         shell: pwsh
@@ -68,6 +88,37 @@ jobs:
             throw "$setup was not created"
           }
 
+      - name: Install and launch the packaged build
+        shell: pwsh
+        run: |
+          $version = (Get-Content VERSION -Raw).Trim()
+          $setup = Join-Path $PWD "Dorong-Setup-v$version.exe"
+          $installDir = Join-Path $env:RUNNER_TEMP 'DorongInstallSmoke'
+          if (Test-Path $installDir) { Remove-Item $installDir -Recurse -Force }
+
+          $installer = Start-Process -FilePath $setup -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART',"/DIR=$installDir" -Wait -PassThru
+          if ($installer.ExitCode -ne 0) {
+            throw "Installer smoke test failed with exit code $($installer.ExitCode)"
+          }
+
+          $installed = Join-Path $installDir 'Dorong.exe'
+          if (-not (Test-Path $installed)) {
+            throw "Installed Dorong.exe was not found at $installed"
+          }
+
+          $p = Start-Process -FilePath $installed -PassThru
+          Start-Sleep -Seconds 8
+          if ($p.HasExited) {
+            throw "Installed Dorong.exe exited early with code $($p.ExitCode)"
+          }
+          Write-Host "Installed Dorong.exe remained running for 8 seconds (PID $($p.Id))."
+          Stop-Process -Id $p.Id -Force
+
+          $uninstaller = Get-ChildItem $installDir -Filter 'unins*.exe' | Select-Object -First 1
+          if ($uninstaller) {
+            Start-Process -FilePath $uninstaller.FullName -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART' -Wait
+          }
+
       - name: Upload Windows build artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -89,6 +140,13 @@ jobs:
           $notes = @"
           Windows 64-bit release of Dorong $tag.
 
+          Startup hotfix release:
+          - Replaces the corrupted embedded sprite payload with a safe built-in Dorong fallback sheet.
+          - Adds sprite decode coverage.
+          - Releases are now blocked unless Dorong survives a real Windows startup smoke test.
+          - The installer itself is silently installed and its packaged Dorong.exe is launched before publishing.
+
+          Files:
           - Dorong-Setup-v$version.exe: recommended installer. Adds Start Menu/uninstall registration and offers an optional desktop shortcut.
           - Dorong-v$version.exe: portable standalone build. No installation is required.
 

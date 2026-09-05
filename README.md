@@ -9,24 +9,27 @@
 
 **Dorong(도롱)** 은 Go와 Win32 API로 만든 개인용 Windows 데스크톱 펫입니다. Python, .NET 같은 별도 런타임 없이 실행할 수 있습니다.
 
-> 현재 버전: **v0.6.1**
+> 현재 버전: **v0.6.2**
 
 ### 다운로드
 
-[⬇ **Dorong v0.6.1 설치 프로그램 다운로드 (권장)**](https://github.com/pashkite/Dorong/releases/download/v0.6.1/Dorong-Setup-v0.6.1.exe)
+[⬇ **Dorong v0.6.2 설치 프로그램 다운로드 (권장)**](https://github.com/pashkite/Dorong/releases/download/v0.6.2/Dorong-Setup-v0.6.2.exe)
 
-[⬇ **Dorong v0.6.1 포터블 EXE 다운로드**](https://github.com/pashkite/Dorong/releases/download/v0.6.1/Dorong-v0.6.1.exe)
+[⬇ **Dorong v0.6.2 포터블 EXE 다운로드**](https://github.com/pashkite/Dorong/releases/download/v0.6.2/Dorong-v0.6.2.exe)
 
-설치 프로그램은 `%LOCALAPPDATA%\Programs\Dorong`에 Dorong을 설치하고 시작 메뉴 및 제거 프로그램을 등록합니다. 설치 중 바탕화면 바로가기도 선택할 수 있습니다. 포터블 EXE는 설치 없이 파일 자체를 바로 실행하는 버전입니다. 저장소가 비공개인 동안에는 GitHub에 로그인한 계정만 릴리스 파일을 받을 수 있습니다.
+설치 프로그램은 `%LOCALAPPDATA%\Programs\Dorong`에 Dorong을 설치하고 시작 메뉴 및 제거 프로그램을 등록합니다. 설치 중 바탕화면 바로가기도 선택할 수 있습니다. 포터블 EXE는 설치 없이 파일 자체를 바로 실행하는 버전입니다.
 
-### v0.6.1 변경 사항
+### v0.6.2 긴급 수정
 
-- 머리 더블클릭 쓰다듬기 횟수를 설정 파일에 영구 저장
-- 누적 쓰다듬기 횟수에 따라 5단계 호감도 추가: 낯가림 → 익숙함 → 친구 → 단짝 → 최고의 친구
-- 호감도 단계에 따라 쓰다듬기 반응 대사가 달라짐
-- 10 / 30 / 60 / 100회 도달 시 호감도 상승 전용 반응 표시
-- 우클릭/트레이 메뉴에 `호감도 보기`를 추가하여 현재 단계, 누적 횟수, 다음 단계 기준 확인 가능
-- 기존 v0.6.0의 설정창, 시스템 트레이, 자동 실행과 v0.5.x의 물리/멀티 모니터 기능 유지
+- v0.6.1에서 실행 직후 종료되던 손상 스프라이트 데이터 문제 수정
+- 손상된 외부 스프라이트 대신 앱 내부에서 생성하는 안전한 Dorong 폴백 스프라이트 시트 사용
+- 폴백 스프라이트의 크기, 투명도, 디코딩을 자동 테스트
+- GitHub Release 배포 전 Windows에서 Dorong을 실제로 실행하고 8초 이상 유지되는지 검사
+- 설치 프로그램을 실제로 무인 설치한 뒤 설치된 `Dorong.exe`까지 실행 검사
+- 실행 검사를 통과하지 못하면 Release가 생성되지 않도록 배포 파이프라인 강화
+- v0.6.1의 누적 쓰다듬기/호감도와 v0.6.0의 설정·트레이·자동실행 기능 유지
+
+> 현재 v0.6.2의 캐릭터 그림은 손상된 원본 이미지 대신 안전하게 생성되는 내장 폴백 그래픽을 사용합니다. 원본 아트 복원은 이후 업데이트에서 별도로 진행할 수 있습니다.
 
 ### 주요 기능
 
@@ -71,24 +74,27 @@ go build -ldflags="-H=windowsgui -s -w" -o Dorong.exe .
 
 **Dorong** is a personal Windows desktop pet built with Go and the Win32 API. It does not require Python or .NET at runtime.
 
-> Current version: **v0.6.1**
+> Current version: **v0.6.2**
 
 ### Download
 
-[⬇ **Download Dorong v0.6.1 Setup (recommended)**](https://github.com/pashkite/Dorong/releases/download/v0.6.1/Dorong-Setup-v0.6.1.exe)
+[⬇ **Download Dorong v0.6.2 Setup (recommended)**](https://github.com/pashkite/Dorong/releases/download/v0.6.2/Dorong-Setup-v0.6.2.exe)
 
-[⬇ **Download Dorong v0.6.1 Portable EXE**](https://github.com/pashkite/Dorong/releases/download/v0.6.1/Dorong-v0.6.1.exe)
+[⬇ **Download Dorong v0.6.2 Portable EXE**](https://github.com/pashkite/Dorong/releases/download/v0.6.2/Dorong-v0.6.2.exe)
 
-The installer places Dorong in `%LOCALAPPDATA%\Programs\Dorong`, creates Start Menu/uninstall registration, and offers an optional desktop shortcut. The portable EXE runs directly without installation. While the repository is private, you need to be signed in to an authorized GitHub account to download release assets.
+The installer places Dorong in `%LOCALAPPDATA%\Programs\Dorong`, creates Start Menu/uninstall registration, and offers an optional desktop shortcut. The portable EXE runs directly without installation.
 
-### What's new in v0.6.1
+### v0.6.2 emergency fix
 
-- Head-petting count now persists in the settings file across restarts
-- Added five affection stages based on lifetime pets: Shy → Familiar → Friend → Bestie → Best friend
-- Head-pat dialogue changes with the current affection stage
-- Dedicated affection-level-up reactions at 10 / 30 / 60 / 100 pets
-- Added `Show affection` to the right-click/tray menu to display the current stage, lifetime count, and next threshold
-- Preserved the v0.6.0 settings/tray/startup features and v0.5.x physics/multi-monitor behavior
+- Fixes the immediate startup crash caused by corrupted sprite data in v0.6.1
+- Uses a safe procedurally generated built-in Dorong fallback sprite sheet instead of the corrupted payload
+- Adds automated sprite size, transparency, and decode coverage
+- Runs Dorong on a real Windows CI runner for at least 8 seconds before publishing a Release
+- Silently installs the packaged Setup build and launches the installed `Dorong.exe` before publishing
+- A failed startup check now blocks Release publication
+- Preserves v0.6.1 persistent petting/affection and v0.6.0 settings, tray, and startup features
+
+> v0.6.2 currently uses safe built-in fallback artwork instead of the corrupted original sprite asset. Restoring the original artwork can be handled in a later update.
 
 ### Features
 
@@ -124,24 +130,25 @@ go build -ldflags="-H=windowsgui -s -w" -o Dorong.exe .
 
 **Dorong（ドロン）** は Go と Win32 API で作られた個人用 Windows デスクトップペットです。Python や .NET の追加インストールは不要です。
 
-> 現在のバージョン: **v0.6.1**
+> 現在のバージョン: **v0.6.2**
 
 ### ダウンロード
 
-[⬇ **Dorong v0.6.1 セットアップをダウンロード（推奨）**](https://github.com/pashkite/Dorong/releases/download/v0.6.1/Dorong-Setup-v0.6.1.exe)
+[⬇ **Dorong v0.6.2 セットアップをダウンロード（推奨）**](https://github.com/pashkite/Dorong/releases/download/v0.6.2/Dorong-Setup-v0.6.2.exe)
 
-[⬇ **Dorong v0.6.1 ポータブル EXE をダウンロード**](https://github.com/pashkite/Dorong/releases/download/v0.6.1/Dorong-v0.6.1.exe)
+[⬇ **Dorong v0.6.2 ポータブル EXE をダウンロード**](https://github.com/pashkite/Dorong/releases/download/v0.6.2/Dorong-v0.6.2.exe)
 
-セットアップ版は `%LOCALAPPDATA%\Programs\Dorong` にインストールし、スタートメニューとアンインストール情報を登録します。デスクトップショートカットも選択できます。ポータブル版はインストールせず直接実行できます。リポジトリが非公開の間は、アクセス権のある GitHub アカウントでログインする必要があります。
+### v0.6.2 緊急修正
 
-### v0.6.1 の変更点
+- v0.6.1 の破損したスプライトデータによる起動直後の終了を修正
+- 破損データの代わりに安全な内蔵フォールバックスプライトを生成して使用
+- スプライトのサイズ・透明度・デコードを自動テスト
+- Release 前に Windows 上で実際に起動し、8 秒以上動作することを確認
+- セットアップ版も実際にインストールして、インストール済み `Dorong.exe` を起動確認
+- 起動確認に失敗した場合は Release を公開しないよう CI を強化
+- v0.6.1 の親密度機能と v0.6.0 の設定・トレイ・自動起動機能を維持
 
-- 頭をダブルクリックして撫でた累計回数を設定ファイルへ保存
-- 累計回数に応じた 5 段階の親密度を追加
-- 親密度に応じて撫でたときのセリフが変化
-- 10 / 30 / 60 / 100 回到達時にレベルアップ専用リアクションを表示
-- 右クリック／トレイメニューから現在の親密度、累計回数、次の基準を確認可能
-- v0.6.0 の設定・トレイ・自動起動と v0.5.x の物理・マルチモニター機能を維持
+> v0.6.2 は破損した元スプライトの代わりに安全な内蔵フォールバック画像を使用します。
 
 ### 主な機能
 
@@ -168,24 +175,25 @@ go build -ldflags="-H=windowsgui -s -w" -o Dorong.exe .
 
 **Dorong** 是一个使用 Go 和 Win32 API 制作的个人 Windows 桌面宠物。运行时无需另外安装 Python 或 .NET。
 
-> 当前版本: **v0.6.1**
+> 当前版本: **v0.6.2**
 
 ### 下载
 
-[⬇ **下载 Dorong v0.6.1 安装程序（推荐）**](https://github.com/pashkite/Dorong/releases/download/v0.6.1/Dorong-Setup-v0.6.1.exe)
+[⬇ **下载 Dorong v0.6.2 安装程序（推荐）**](https://github.com/pashkite/Dorong/releases/download/v0.6.2/Dorong-Setup-v0.6.2.exe)
 
-[⬇ **下载 Dorong v0.6.1 便携版 EXE**](https://github.com/pashkite/Dorong/releases/download/v0.6.1/Dorong-v0.6.1.exe)
+[⬇ **下载 Dorong v0.6.2 便携版 EXE**](https://github.com/pashkite/Dorong/releases/download/v0.6.2/Dorong-v0.6.2.exe)
 
-安装程序会将 Dorong 安装到 `%LOCALAPPDATA%\Programs\Dorong`，并注册开始菜单和卸载程序，同时可选择创建桌面快捷方式。便携版无需安装即可直接运行。在仓库保持私有期间，需要使用具有访问权限的 GitHub 账号登录后才能下载 Release 文件。
+### v0.6.2 紧急修复
 
-### v0.6.1 更新
+- 修复 v0.6.1 因损坏精灵数据导致的启动后立即退出问题
+- 不再使用损坏数据，改为生成安全的内置 Dorong 备用精灵图
+- 自动测试精灵图尺寸、透明度和解码
+- 发布 Release 前会在 Windows 环境中实际启动 Dorong 并确认至少运行 8 秒
+- 安装程序也会被实际静默安装，并启动安装后的 `Dorong.exe` 进行检查
+- 启动检查失败时不会发布 Release
+- 保留 v0.6.1 好感度功能以及 v0.6.0 设置、托盘和自动启动功能
 
-- 双击头部抚摸的累计次数现在会永久保存到设置文件
-- 根据累计抚摸次数新增 5 个好感度阶段
-- 抚摸时的台词会随当前好感度阶段变化
-- 达到 10 / 30 / 60 / 100 次时显示专属好感度提升反应
-- 可从右键／托盘菜单查看当前好感度、累计次数和下一阶段条件
-- 保留 v0.6.0 的设置、托盘、自动启动以及 v0.5.x 的物理和多显示器功能
+> v0.6.2 当前使用安全的内置备用图形代替已损坏的原始精灵素材。
 
 ### 主要功能
 
@@ -209,6 +217,6 @@ go build -ldflags="-H=windowsgui -s -w" -o Dorong.exe .
 
 ## Repository notes
 
-The Windows build is generated by GitHub Actions from the value in `VERSION`. Successful builds publish both `Dorong-Setup-v<version>.exe` (installer) and `Dorong-v<version>.exe` (portable) to the matching GitHub Release automatically.
+The Windows build is generated by GitHub Actions from the value in `VERSION`. A Release is published only after automated tests, a Windows startup smoke test, and an install-and-launch smoke test for the packaged Setup build pass successfully.
 
 See [`docs/ROADMAP.md`](docs/ROADMAP.md) for the development roadmap.

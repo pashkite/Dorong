@@ -7,6 +7,8 @@
 - v0.6.0: optional startup-with-Windows registration
 - v0.6.1: persistent lifetime head-petting counter
 - v0.6.1: five affection stages with stage-specific reactions and status menu
+- v0.6.2: startup hotfix replacing the corrupted sprite payload with a safe built-in fallback sheet
+- v0.6.2: release-gating Windows startup smoke test plus installer install-and-launch verification
 
 ## v0.5.x — completed
 
@@ -30,6 +32,7 @@
 
 ## Next
 
+- Restore/replace the original hand-drawn Dorong sprite asset with a validated source file
 - Additional hand-drawn animation frames for climbing
 - Optional skin pack loading from a folder
 

@@ -1,8 +1,8 @@
 #ifndef MyAppVersion
-  #define MyAppVersion "0.6.1"
+  #define MyAppVersion "0.6.2"
 #endif
 #ifndef MyAppExeName
-  #define MyAppExeName "Dorong-v0.6.1.exe"
+  #define MyAppExeName "Dorong-v0.6.2.exe"
 #endif
 
 #define MyAppName "Dorong"
