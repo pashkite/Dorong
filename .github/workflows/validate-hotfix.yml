@@ -1,0 +1,46 @@
+name: Validate Dorong startup hotfix
+
+on:
+  push:
+    branches: [v0.6.2-startup-hotfix]
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23.x'
+
+      - name: Format hotfix sources
+        shell: pwsh
+        run: gofmt -w sprite_hotfix_windows.go sprite_hotfix_windows_test.go
+
+      - name: Run all tests
+        shell: pwsh
+        run: go test ./...
+
+      - name: Build console diagnostic EXE
+        shell: pwsh
+        run: go build -trimpath -o Dorong-hotfix-diagnostic.exe .
+
+      - name: Launch and verify process stays alive
+        shell: pwsh
+        run: |
+          $stdout = Join-Path $PWD 'dorong-stdout.txt'
+          $stderr = Join-Path $PWD 'dorong-stderr.txt'
+          $p = Start-Process -FilePath (Join-Path $PWD 'Dorong-hotfix-diagnostic.exe') -RedirectStandardOutput $stdout -RedirectStandardError $stderr -PassThru
+          Start-Sleep -Seconds 8
+          if ($p.HasExited) {
+            Write-Host "Dorong exited early with code $($p.ExitCode)"
+            if (Test-Path $stdout) { Write-Host '--- stdout ---'; Get-Content $stdout -Raw }
+            if (Test-Path $stderr) { Write-Host '--- stderr ---'; Get-Content $stderr -Raw }
+            exit 1
+          }
+          Write-Host "Dorong remained running for 8 seconds (PID $($p.Id))."
+          Stop-Process -Id $p.Id -Force
