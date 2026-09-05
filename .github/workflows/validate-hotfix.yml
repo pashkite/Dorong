@@ -17,6 +17,16 @@ jobs:
         with:
           go-version: '1.23.x'
 
+      - name: Apply VERSION
+        shell: pwsh
+        run: |
+          $version = (Get-Content VERSION -Raw).Trim()
+          $source = Get-Content core_windows.go -Raw
+          $pattern = 'AppVersion\s*=\s*"[^"]+"'
+          if ($source -notmatch $pattern) { throw 'AppVersion marker not found' }
+          $patched = [regex]::Replace($source, $pattern, "AppVersion = `"$version`"")
+          Set-Content core_windows.go -Value $patched -NoNewline -Encoding utf8
+
       - name: Format hotfix sources
         shell: pwsh
         run: gofmt -w sprite_hotfix_windows.go sprite_hotfix_windows_test.go
@@ -25,13 +35,10 @@ jobs:
         shell: pwsh
         run: go test ./...
 
-      - name: Build console diagnostic EXE
-        shell: pwsh
-        run: go build -trimpath -o Dorong-hotfix-diagnostic.exe .
-
-      - name: Launch and verify process stays alive
+      - name: Build and launch console diagnostic EXE
         shell: pwsh
         run: |
+          go build -trimpath -o Dorong-hotfix-diagnostic.exe .
           $stdout = Join-Path $PWD 'dorong-stdout.txt'
           $stderr = Join-Path $PWD 'dorong-stderr.txt'
           $p = Start-Process -FilePath (Join-Path $PWD 'Dorong-hotfix-diagnostic.exe') -RedirectStandardOutput $stdout -RedirectStandardError $stderr -PassThru
@@ -42,5 +49,48 @@ jobs:
             if (Test-Path $stderr) { Write-Host '--- stderr ---'; Get-Content $stderr -Raw }
             exit 1
           }
-          Write-Host "Dorong remained running for 8 seconds (PID $($p.Id))."
+          Write-Host "Diagnostic Dorong remained running for 8 seconds (PID $($p.Id))."
           Stop-Process -Id $p.Id -Force
+
+      - name: Build GUI release EXE
+        shell: pwsh
+        run: |
+          $version = (Get-Content VERSION -Raw).Trim()
+          go build -trimpath -ldflags="-H=windowsgui -s -w" -o "Dorong-v$version.exe" .
+
+      - name: Ensure Inno Setup is available
+        shell: pwsh
+        run: |
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) { choco install innosetup --no-progress -y }
+          if (-not (Test-Path $iscc)) { throw "Inno Setup compiler not found at $iscc" }
+
+      - name: Build installer
+        shell: pwsh
+        run: |
+          $version = (Get-Content VERSION -Raw).Trim()
+          $portable = "Dorong-v$version.exe"
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          & $iscc "/DMyAppVersion=$version" "/DMyAppExeName=$portable" "installer\Dorong.iss"
+          if ($LASTEXITCODE -ne 0) { throw "Inno Setup build failed with exit code $LASTEXITCODE" }
+
+      - name: Install and launch packaged Dorong
+        shell: pwsh
+        run: |
+          $version = (Get-Content VERSION -Raw).Trim()
+          $setup = Join-Path $PWD "Dorong-Setup-v$version.exe"
+          $installDir = Join-Path $env:RUNNER_TEMP 'DorongInstallSmoke'
+          if (Test-Path $installDir) { Remove-Item $installDir -Recurse -Force }
+          $installer = Start-Process -FilePath $setup -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART',"/DIR=$installDir" -Wait -PassThru
+          if ($installer.ExitCode -ne 0) { throw "Installer failed with exit code $($installer.ExitCode)" }
+          $installed = Join-Path $installDir 'Dorong.exe'
+          if (-not (Test-Path $installed)) { throw "Installed Dorong.exe not found" }
+          $p = Start-Process -FilePath $installed -PassThru
+          Start-Sleep -Seconds 8
+          if ($p.HasExited) { throw "Installed Dorong.exe exited early with code $($p.ExitCode)" }
+          Write-Host "Packaged Dorong remained running for 8 seconds (PID $($p.Id))."
+          Stop-Process -Id $p.Id -Force
+          $uninstaller = Get-ChildItem $installDir -Filter 'unins*.exe' | Select-Object -First 1
+          if ($uninstaller) {
+            Start-Process -FilePath $uninstaller.FullName -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART' -Wait
+          }
